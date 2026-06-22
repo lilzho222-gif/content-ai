@@ -1,1 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScriptAI - AI短视频脚本生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E8E8E8;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #F5F5F5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #E8E8E8;
+        }
+
+        .btn-copy {
+            background: #2ECC71;
+            color: white;
+            flex: 0.5;
+        }
+
+        .btn-copy:hover {
+            background: #27AE60;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .script-output {
+            background: #F8F9FA;
+            border: 1px solid #E8E8E8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .script-part {
+            margin-bottom: 16px;
+        }
+
+        .script-part-title {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .script-part-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            background: #F5F5F5;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .pricing-section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+        }
+
+        .pricing-title {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            color: #333;
+            margin-bottom: 32px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .pricing-card {
+            border: 2px solid #E8E8E8;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pricing-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            border-color: #667eea;
+            background: #F8F9FF;
+        }
+
+        .price-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .price-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .price-cycle {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .price-features {
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .price-feature {
+            padding: 6px 0;
+            border-bottom: 1px solid #E8E8E8;
+        }
+
+        .price-feature:last-child {
+            border-bottom: none;
+        }
+
+        .feature-check {
+            color: #2ECC71;
+            margin-right: 6px;
+        }
+
+        .price-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .pricing-card:not(.featured) .price-btn {
+            background: #F5F5F5;
+            color: #333;
+        }
+
+        .pricing-card.featured .price-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #E8E8E8;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .loading-text {
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+            display: none;
+        }
+
+        .loading-text.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #D4EDDA;
+            border: 1px solid #C3E6CB;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 13px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .templates {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .template-btn {
+            padding: 10px;
+            background: #F5F5F5;
+            border: 1px solid #E8E8E8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .template-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .template-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">✨ ScriptAI</div>
+            <div class="tagline">AI短视频脚本生成器 - 5秒生成完整脚本</div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="card-title">🎬 脚本生成器</div>
+
+                <div class="input-group">
+                    <label class="label">选择视频类型</label>
+                    <select id="videoType" onchange="updateTemplates()">
+                        <option value="entertainment">娱乐搞笑</option>
+                        <option value="knowledge">知识干货</option>
+                        <option value="beauty">美妆测评</option>
+                        <option value="food">美食推荐</option>
+                        <option value="travel">旅游分享</option>
+                        <option value="tech">科技评测</option>
+                        <option value="motivation">励志鸡汤</option>
+                        <option value="lifestyle">生活方式</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">推荐模板</label>
+                    <div class="templates" id="templates"></div>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">视频主题</label>
+                    <input type="text" id="topic" placeholder="例如：护肤秘诀、做菜技巧、旅游攻略">
+                </div>
+
+                <div class="input-group">
+                    <label class="label">视频时长</label>
+                    <select id="duration">
+                        <option value="15">15秒</option>
+                        <option value="30" selected>30秒</option>
+                        <option value="60">60秒</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">目标平台</label>
+                    <select id="platform">
+                        <option value="douyin">抖音</option>
+                        <option value="xiaohongshu">小红书</option>
+                        <option value="bilibili">B站</option>
+                        <option value="kuaishou">快手</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">额外要求（可选）</label>
+                    <textarea id="extra" placeholder="例如：要加入互动、要有悬念、要包含产品推荐"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="generateScript()">🚀 生成脚本</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">重置</button>
+                </div>
+
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="loading-text" id="loadingText">AI正在生成脚本中...</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📝 生成结果</div>
+                <div class="success-message" id="successMessage">✅ 脚本生成成功！</div>
+
+                <div class="stats" id="stats" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-number" id="wordCount">0</div>
+                        <div class="stat-label">字数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="scriptTime">0s</div>
+                        <div class="stat-label">时长</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">AI</div>
+                        <div class="stat-label">生成</div>
+                    </div>
+                </div>
+
+                <div class="result-section" id="resultSection">
+                    <div class="script-output" id="scriptOutput"></div>
+
+                    <div class="button-group">
+                        <button class="btn btn-copy" onclick="copyScript()">📋 复制</button>
+                        <button class="btn btn-secondary" onclick="downloadScript()">⬇️ 下载</button>
+                        <button class="btn btn-secondary" onclick="shareScript()">📤 分享</button>
+                    </div>
+                </div>
+
+                <div style="color: #999; font-size: 12px; margin-top: 20px; text-align: center;" id="emptyState">
+                    👈 左侧输入信息后点击生成脚本
+                </div>
+            </div>
+        </div>
+
+        <div class="pricing-section">
+            <div class="pricing-title">💰 选择你的套餐</div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="price-name">免费版</div>
+                    <div class="price-amount">¥0</div>
+                    <div class="price-cycle">永久免费</div>
+                    <div class="price-features">
+                        <div class="price-feature"><span class="feature-check">✓</span>每天2个脚本</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>基础模板</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>复制下载</div>
+                        <div class="price-feature">✗ 高级功能</div>
+                        <div class="price-feature">✗ 优先支持</div>
+                    </div>
+                    <button class="price-btn">当前使用中</button>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="price-name">💎 高级版</div>
+                    <div class="price-amount">¥19</div>
+                    <div class="price-cycle">/月</div>
+                    <div class="price-features">
+                        <div class="price-feature"><span class="feature-check">✓</span>无限脚本生成</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>50+高级模板</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>视频配音</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>批量导出</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>优先支持</div>
+                    </div>
+                    <button class="price-btn" onclick="upgradePlan('premium')">立即升级</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="price-name">🏢 企业版</div>
+                    <div class="price-amount">¥99</div>
+                    <div class="price-cycle">/月</div>
+                    <div class="price-features">
+                        <div class="price-feature"><span class="feature-check">✓</span>一切高级版功能</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>团队协作</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>数据分析</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>API接口</div>
+                        <div class="price-feature"><span class="feature-check">✓</span>专属账号管理</div>
+                    </div>
+                    <button class="price-btn">联系销售</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const templates = {
+            entertainment: ['开头段子', '反转剧情', '对比搞笑', '日常吐槽'],
+            knowledge: ['知识点讲解', '技能教程', '原理分析', '误区纠正'],
+            beauty: ['产品开箱', '效果对比', '使用教程', '成分分析'],
+            food: ['做法演示', '食材推荐', '口味对比', '技巧分享'],
+            travel: ['景点介绍', '攻略分享', '花费预算', '体验分享'],
+            tech: ['产品评测', '功能演示', '对比分析', '开箱体验'],
+            motivation: ['成功案例', '心灵鸡汤', '行动指南', '反思启发'],
+            lifestyle: ['日常分享', '生活技巧', '消费建议', '趋势分享']
+        };
+
+        const scriptTemplates = {
+            entertainment: {
+                opening: "哈哈哈，你有没有遇到过这种情况？{topic}真的是绝了...",
+                middle: "最搞笑的是，{topic}竟然能这样处理，我之前完全想不到啊",
+                ending: "所以说啊，{topic}的正确打开方式就是这样，你试过了吗？评论区告诉我",
+                tips: "镜头运动：快速切换，配合背景音乐"
+            },
+            knowledge: {
+                opening: "听我说，关于{topic}我要告诉你一个秘密...",
+                middle: "其实{topic}的核心就是这三点：第一...第二...第三...",
+                ending: "现在你知道{topic}的真相了，分享给你的朋友吧！",
+                tips: "字幕提示：关键词加粗、重点框选"
+            },
+            beauty: {
+                opening: "这款{topic}真的绝了，我用了一周必须来分享",
+                middle: "先说成分：...；再说效果：...；最后说价格：...",
+                ending: "所以说{topic}真的值得入手，小红书有链接，有兴趣的点赞评论",
+                tips: "画面展示：产品特写+使用效果对比"
+            },
+            food: {
+                opening: "你好啊，今天教大家怎么做{topic}，超简单的",
+                middle: "准备材料→处理食材→烹饪步骤→装盘摆拍",
+                ending: "完成！这就是{topic}的正确做法，你学会了吗？",
+                tips: "视觉引导：慢镜头展示、特写食物、成品吸引"
+            },
+            travel: {
+                opening: "我来到了{topic}，这个地方真的超出我的想象",
+                middle: "先来看看景色...再来看看人文...最后说说花费...",
+                ending: "如果你也想去{topic}，一定不要错过这些地方",
+                tips: "场景切换：多角度展示、配上背景音乐"
+            },
+            tech: {
+                opening: "这款{topic}我已经用了一个月，今天给大家深度评测",
+                middle: "设计→性能→体验→对比→建议",
+                ending: "总体来说{topic}确实不错，值不值得买看评论区讨论",
+                tips: "产品展示：多角度拍摄、细节特写"
+            },
+            motivation: {
+                opening: "我想和你分享一个关于{topic}的故事...",
+                middle: "事情是这样的→转折发生了→最后我学到了...",
+                ending: "所以我今天想告诉所有人，{topic}最重要的是...",
+                tips: "情感渲染：适当停顿、真挚表达"
+            },
+            lifestyle: {
+                opening: "分享一个我最近发现的{topic}新方法",
+                middle: "这个方法的好处是...我是这样用的...效果是...",
+                ending: "如果你也想体验{topic}的便利，可以试试看",
+                tips: "真实感：自然光、日常场景、真实反应"
+            }
+        };
+
+        function updateTemplates() {
+            const type = document.getElementById('videoType').value;
+            const templatesDiv = document.getElementById('templates');
+            templatesDiv.innerHTML = '';
+            
+            templates[type].forEach((template, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'template-btn';
+                btn.textContent = template;
+                btn.onclick = () => {
+                    document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+                templatesDiv.appendChild(btn);
+            });
+        }
+
+        function generateScript() {
+            const topic = document.getElementById('topic').value;
+            const videoType = document.getElementById('videoType').value;
+            const duration = document.getElementById('duration').value;
+            const platform = document.getElementById('platform').value;
+            const extra = document.getElementById('extra').value;
+
+            if (!topic) {
+                alert('请输入视频主题');
+                return;
+            }
+
+            document.getElementById('progressBar').classList.add('show');
+            document.getElementById('loadingText').classList.add('show');
+            document.getElementById('successMessage').classList.remove('show');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 100) progress = 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                document.getElementById('progressFill').style.width = '100%';
+
+                const template = scriptTemplates[videoType];
+                const script = `【开头 - 吸引注意】(3秒内)
+${template.opening}
+
+【中间 - 展开内容】(15-25秒)
+${template.middle}
+${extra ? `\n额外亮点：${extra}` : ''}
+
+【结尾 - 引导互动】(3-5秒)
+${template.ending}
+
+【视觉指导】
+${template.tips}
+
+【配音建议】
+根据内容选择合适的背景音乐，营造相应的情绪氛围
+
+【关键字幕】
+- 开头：吸引用户停止划动
+- 中间：标记重要信息
+- 结尾：强调互动要求（点赞、评论、关注）`;
+
+                document.getElementById('scriptOutput').innerHTML = script.replace(/\n/g, '<br>');
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('resultSection').classList.add('show');
+                document.getElementById('stats').style.display = 'grid';
+
+                document.getElementById('wordCount').textContent = script.length;
+                document.getElementById('scriptTime').textContent = duration + 's';
+
+                setTimeout(() => {
+                    document.getElementById('successMessage').classList.add('show');
+                    document.getElementById('progressBar').classList.remove('show');
+                    document.getElementById('loadingText').classList.remove('show');
+                }, 500);
+            }, 2000);
+        }
+
+        function copyScript() {
+            const script = document.getElementById('scriptOutput').innerText;
+            navigator.clipboard.writeText(script).then(() => {
+                alert('✅ 脚本已复制到剪贴板');
+            });
+        }
+
+        function downloadScript() {
+            const script = document.getElementById('scriptOutput').innerText;
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(script));
+            element.setAttribute('download', 'script_' + Date.now() + '.txt');
+            element.click();
+        }
+
+        function shareScript() {
+            alert('分享功能开发中...\n可以直接复制脚本内容分享到微信/微博');
+        }
+
+        function upgradePlan(plan) {
+            alert(`感谢你的选择！\n升级到${plan === 'premium' ? '高级版' : '企业版'}功能开发中\n\n当前演示版本：全部功能免费体验`);
+        }
+
+        function resetForm() {
+            document.getElementById('videoType').value = 'entertainment';
+            document.getElementById('topic').value = '';
+            document.getElementById('duration').value = '30';
+            document.getElementById('platform').value = 'douyin';
+            document.getElementById('extra').value = '';
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('stats').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('successMessage').classList.remove('show');
+            updateTemplates();
+        }
+
+        updateTemplates();
+    </script>
+</body>
+</html>
