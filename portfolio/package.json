@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "gsap": "3.13.0",
+    "lucide-react": "latest",
+    "ogl": "1.0.11",
     "react": "latest",
     "react-dom": "latest",
-    "lucide-react": "latest"
+    "vite": "latest"
   }
 }
