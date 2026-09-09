@@ -3,9 +3,16 @@ import assert from 'node:assert/strict'
 import {
   getNeteaseApiEndpoint,
   mergeNeteaseTracks,
+  qrLoginCanConnect,
   qrStatusLabel,
   requestNetease,
 } from '../src/player/neteaseAccount.js'
+
+test('only treats QR confirmation as connected when login credentials arrived', () => {
+  assert.equal(qrLoginCanConnect({ code: 803, hasCredential: true }), true)
+  assert.equal(qrLoginCanConnect({ code: 803, hasCredential: false }), false)
+  assert.equal(qrLoginCanConnect({ code: 802, hasCredential: true }), false)
+})
 
 test('uses the same-origin hosted API endpoint', () => {
   assert.equal(getNeteaseApiEndpoint('https://lilzho.onrender.com/player'), 'https://lilzho.onrender.com/api/netease')

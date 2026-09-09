@@ -6,7 +6,7 @@ const {
   song_url: songUrl,
 } = require('@neteasecloudmusicapienhanced/api')
 const { Readable } = require('node:stream')
-const { extractAccountProfile, playlistSongIds, songProxyUrl } = require('./neteaseUtils.cjs')
+const { compactNeteaseCookie, extractAccountProfile, playlistSongIds, songProxyUrl } = require('./neteaseUtils.cjs')
 
 const SESSION_NAME = 'lilzho_netease_session'
 const MAX_AGE = 60 * 60 * 24 * 30
@@ -73,8 +73,10 @@ module.exports = async function handler(req, res) {
       const key = String(req.query.key || '')
       if (!key) return send(res, 400, { message: '缺少二维码登录标识。' })
       const result = bodyOf(await loginQrCheck({ key }))
-      if (Number(result.code) === 803 && result.cookie) saveSession(res, result.cookie)
-      return send(res, 200, { code: Number(result.code), message: result.message || '' })
+      const sessionCookie = compactNeteaseCookie(result.cookie)
+      const hasCredential = /(?:^|;\s*)(?:MUSIC_U|MUSIC_A)=/.test(sessionCookie)
+      if (Number(result.code) === 803 && hasCredential) saveSession(res, sessionCookie)
+      return send(res, 200, { code: Number(result.code), message: result.message || '', hasCredential })
     }
 
     if (action === 'status') {

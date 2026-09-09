@@ -11,6 +11,10 @@ export function qrStatusLabel(code) {
   })[Number(code)] || '正在连接网易云音乐'
 }
 
+export function qrLoginCanConnect(result) {
+  return Number(result?.code) === 803 && result?.hasCredential === true
+}
+
 export function mergeNeteaseTracks(songs = [], urls = []) {
   const sources = new Map(urls.filter(item => item?.url).map(item => [Number(item.id), item.url]))
   return songs.flatMap(song => {

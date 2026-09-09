@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Link2, LoaderCircle, LogOut, Music2, QrCode } from 'lucide-react'
-import { mergeNeteaseTracks, qrStatusLabel, requestNetease } from './neteaseAccount'
+import { mergeNeteaseTracks, qrLoginCanConnect, qrStatusLabel, requestNetease } from './neteaseAccount'
 import { parseNeteaseLink } from './musicLinks'
 import { useMusic } from './MusicProvider'
 
@@ -41,6 +41,11 @@ export default function NeteasePanel({ onTracksLoaded }) {
       const result = await requestNetease('qr-check', { key })
       setStatus(qrStatusLabel(result.code))
       if (Number(result.code) === 803) {
+        if (!qrLoginCanConnect(result)) {
+          setStatus('手机已确认，但网易云没有返回登录凭证，请重新生成二维码')
+          setBusy(false)
+          return
+        }
         setQr(null)
         await loadAccount()
         return

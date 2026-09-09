@@ -1,10 +1,26 @@
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const {
+  compactNeteaseCookie,
   extractAccountProfile,
   playlistSongIds,
   songProxyUrl,
 } = require('../api/neteaseUtils.cjs')
+
+test('keeps login credentials while removing oversized response cookie attributes', () => {
+  const cookie = [
+    'MUSIC_U=login-token',
+    '__csrf=csrf-token',
+    'NMTID=device-token',
+    'Path=/',
+    'Expires=Wed, 09 Jun 2032 10:18:14 GMT',
+    'unrelated=' + 'x'.repeat(5000),
+  ].join('; ')
+  assert.equal(
+    compactNeteaseCookie(cookie),
+    'MUSIC_U=login-token; __csrf=csrf-token; NMTID=device-token',
+  )
+})
 
 test('uses every playlist trackId instead of the abbreviated tracks array', () => {
   const detail = {
