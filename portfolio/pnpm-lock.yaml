@@ -16,7 +16,7 @@ importers:
         version: 6.1.1(vite@8.2.2(@types/node@26.4.1)(jiti@2.7.0))
       express:
         specifier: 5.2.1
-        version: 5.2.1
+        version: 5.2.1(supports-color@5.5.0)
       gsap:
         specifier: 3.13.0
         version: 3.13.0
