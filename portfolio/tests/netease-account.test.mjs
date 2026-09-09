@@ -7,8 +7,8 @@ import {
   requestNetease,
 } from '../src/player/neteaseAccount.js'
 
-test('uses the same-origin Vercel function endpoint', () => {
-  assert.equal(getNeteaseApiEndpoint('https://lilzho.vercel.app/player'), 'https://lilzho.vercel.app/api/netease')
+test('uses the same-origin hosted API endpoint', () => {
+  assert.equal(getNeteaseApiEndpoint('https://lilzho.onrender.com/player'), 'https://lilzho.onrender.com/api/netease')
   assert.equal(getNeteaseApiEndpoint('http://localhost:5173/'), 'http://localhost:5173/api/netease')
 })
 
@@ -51,7 +51,7 @@ test('rejects a static HTML fallback instead of pretending the API exists', asyn
     headers: { get: () => 'text/html; charset=utf-8' },
     json: async () => ({}),
   })
-  await assert.rejects(() => requestNetease('status'), /Vercel/)
+  await assert.rejects(() => requestNetease('status'), /Render/)
   globalThis.window = previousWindow
   globalThis.fetch = previousFetch
 })

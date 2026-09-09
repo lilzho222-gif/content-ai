@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { tracks as defaults } from './trackData'
+import { removeTrackState } from './playerCustomization'
 
 const MusicContext = createContext(null)
 export const useMusic = () => useContext(MusicContext)
+const emptyTrack = { id: 'empty', title: '播放列表是空的', descriptor: '添加歌曲后开始播放', src: '', accent: '#b47764' }
 
 export function MusicProvider({ children }) {
   const audioRef = useRef(null)
@@ -18,8 +20,9 @@ export function MusicProvider({ children }) {
   const [time, setTime] = useState(0)
   const desired = useRef(true)
   const sequence = useRef(0)
-  const track = tracks[index] || tracks[0]
+  const track = tracks[index] || tracks[0] || emptyTrack
   const play = useCallback(async () => {
+    if (!audioRef.current?.src || !tracks.length) { setError('先添加一首歌曲再播放。'); return }
     desired.current = true
     const token = ++sequence.current
     setError('')
@@ -31,9 +34,10 @@ export function MusicProvider({ children }) {
       if (reason.name === 'NotAllowedError') setBlocked(true)
       else { setBlocked(false); setError('这首暂时无法播放，请重试或换一首。') }
     }
-  }, [])
+  }, [tracks.length])
   const pause = useCallback(() => { desired.current = false; sequence.current++; audioRef.current.pause(); setBlocked(false) }, [])
   const choose = useCallback(next => {
+    if (!tracks.length) return
     const value = (next + tracks.length) % tracks.length
     desired.current = true
     if (value === index) { audioRef.current.currentTime = 0; play() }
@@ -42,6 +46,14 @@ export function MusicProvider({ children }) {
   useEffect(() => {
     sequence.current++
     const audio = audioRef.current
+    if (!track.src) {
+      desired.current = false
+      audio.pause()
+      audio.removeAttribute('src')
+      audio.load()
+      setTime(0); setDuration(0); setPlaying(false)
+      return
+    }
     audio.src = track.src
     audio.load()
     setTime(0); setDuration(0); setError('')
@@ -68,8 +80,25 @@ export function MusicProvider({ children }) {
     setError('')
     return true
   }
+  const removeTrack = id => {
+    const result = removeTrackState(tracks, index, id)
+    if (!result.removed) return false
+    if (result.removed.local && result.removed.src?.startsWith('blob:')) {
+      URL.revokeObjectURL(result.removed.src)
+      urls.current = urls.current.filter(url => url !== result.removed.src)
+    }
+    if (!result.tracks.length) {
+      desired.current = false
+      audioRef.current.pause()
+      setBlocked(false)
+    }
+    setTracks(result.tracks)
+    setIndex(result.index)
+    setError('')
+    return true
+  }
   const seek = next => { if (Number.isFinite(duration) && duration > 0) { audioRef.current.currentTime = next; setTime(next) } }
-  const value = { tracks, track, index, playing, blocked, error, volume, muted, duration, time, play, pause, choose, importFiles, replaceTracks, seek, setVolume, setMuted, toggle: () => playing ? pause() : play() }
+  const value = { tracks, track, index, playing, blocked, error, volume, muted, duration, time, play, pause, choose, importFiles, replaceTracks, removeTrack, seek, setVolume, setMuted, toggle: () => playing ? pause() : play() }
   return <MusicContext.Provider value={value}>
     <audio ref={audioRef} preload="metadata" onPlay={() => { setPlaying(true); setBlocked(false) }} onPause={() => setPlaying(false)} onLoadedMetadata={event => setDuration(event.currentTarget.duration)} onTimeUpdate={event => setTime(event.currentTarget.currentTime)} onEnded={() => choose(index + 1)} onError={() => { setError('音频加载失败，可以重试或切换歌曲。'); setPlaying(false) }} />
     {children}

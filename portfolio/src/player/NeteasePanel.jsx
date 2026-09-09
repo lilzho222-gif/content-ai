@@ -28,7 +28,7 @@ export default function NeteasePanel() {
       return true
     } catch {
       setApiAvailable(false)
-      setStatus('账号连接将在 Vercel 版本启用')
+      setStatus('账号连接将在 Render 版本启用')
       return false
     } finally { setBusy(false) }
   }, [])
@@ -93,7 +93,7 @@ export default function NeteasePanel() {
       {account ? <>
         <div className="netease-profile">{account.avatarUrl ? <img src={account.avatarUrl} alt="网易云账号头像" /> : <span><Music2 /></span>}<div><small>CONNECTED</small><strong>{account.nickname}</strong><p>{status}</p></div></div>
         <div className="netease-playlists" aria-label="我的网易云歌单">{playlists.map(playlist => <button key={playlist.id} onClick={() => openPlaylist(playlist)} disabled={busy}><span>{playlist.coverImgUrl && <img src={playlist.coverImgUrl} alt="" />}</span><b>{playlist.name}</b><small>{playlist.trackCount || 0} 首</small></button>)}</div>
-      </> : qr ? <div className="netease-qr"><img src={qr.qrimg} alt="网易云音乐登录二维码" /><div><QrCode size={18} /><strong>{status}</strong><small>二维码只用于本次登录，请在手机网易云音乐中确认。</small><button onClick={startQr} disabled={busy && status !== qrStatusLabel(800)}>重新生成</button></div></div> : <div className="netease-connect"><span><QrCode size={23} /></span><div><strong>用手机扫码连接</strong><p>{apiAvailable ? '登录后可以读取你的歌单，并在本站播放器中切换歌曲。' : 'GitHub Pages 继续正常使用；账号同步将在 Vercel 网址中启用。'}</p></div><button onClick={startQr} disabled={busy || !apiAvailable}>{busy ? <LoaderCircle className="spin" size={17} /> : <QrCode size={17} />}连接账号</button></div>}
+      </> : qr ? <div className="netease-qr"><img src={qr.qrimg} alt="网易云音乐登录二维码" /><div><QrCode size={18} /><strong>{status}</strong><small>二维码只用于本次登录，请在手机网易云音乐中确认。</small><button onClick={startQr} disabled={busy && status !== qrStatusLabel(800)}>重新生成</button></div></div> : <div className="netease-connect"><span><QrCode size={23} /></span><div><strong>用手机扫码连接</strong><p>{apiAvailable ? '登录后可以读取你的歌单，并在本站播放器中切换歌曲。' : 'GitHub Pages 继续正常使用；账号同步将在 Render 网址中启用。'}</p></div><button onClick={startQr} disabled={busy || !apiAvailable}>{busy ? <LoaderCircle className="spin" size={17} /> : <QrCode size={17} />}连接账号</button></div>}
       {busy && account && <p className="netease-loading"><LoaderCircle className="spin" size={15} />{status}</p>}
     </div>
 

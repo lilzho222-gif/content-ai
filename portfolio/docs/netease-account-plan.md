@@ -37,11 +37,11 @@ Enhanced 是第三方接口实现，不是网易云官方 OAuth。存在服务�
 
 **推荐：自己的长期在线服务器，部署音乐页面 + 网关 + 内部 API。** 会话和访问权限更容易控制，也不依赖你的个人电脑开机。需要服务器访问权限、域名／HTTPS，以及你认可的预算。
 
-**已选择：自己的 Vercel 账户。** Vercel 版让播放器与 `/api/netease` 网关同源，登录 Cookie 使用 HttpOnly、Secure 和 SameSite=Lax，前端 JavaScript 不能读取。网络可达性、平台限制和费用以实际账户测试为准。
+**已选择：Render 免费 Web Service。** Render 版让播放器与 `/api/netease` 网关同源，登录 Cookie 使用 HttpOnly、Secure 和 SameSite=Lax，前端 JavaScript 不能读取。免费服务闲置后会休眠，首次唤醒可能需要约一分钟；网络可达性、平台限制和费用以实际账户测试为准。
 
 ## 下一步需要的信息
 
-在 Vercel 导入 `lilzho222-gif/content-ai`，Root Directory 选择 `portfolio` 后部署。不要在聊天里发送网易云密码或 Cookie。部署完成后由你扫描二维码登录，再验证账号显示、歌单、正常授权歌曲播放和退出清理。
+在 Render 使用仓库根目录的 `render.yaml` 创建 Blueprint；它会自动使用 `portfolio` 作为应用目录，并启动同源 Node 服务。不要在聊天里发送网易云密码或 Cookie。部署完成后由你扫描二维码登录，再验证账号显示、歌单、正常授权歌曲播放和退出清理。
 
 ## 已核对资料
 

@@ -38,7 +38,7 @@ export async function requestNetease(action, params = {}, signal) {
   })
   const response = await fetch(url, { credentials: 'include', signal })
   const contentType = response.headers.get('content-type') || ''
-  if (!contentType.includes('application/json')) throw new Error('账号连接需要在 Vercel 版本中使用。')
+  if (!contentType.includes('application/json')) throw new Error('账号连接需要在 Render 版本中使用。')
   const payload = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(payload.message || '网易云音乐连接失败，请稍后重试。')
   return payload

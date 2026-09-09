@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: lilzho-portfolio
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: portfolio
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    healthCheckPath: /health
+    envVars:
+      - key: ENABLE_GENERAL_UNBLOCK
+        value: "false"
