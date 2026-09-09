@@ -4,6 +4,9 @@ import test from 'node:test'
 
 const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const app = readFileSync(new URL('../src/main.jsx', import.meta.url), 'utf8')
+const home = readFileSync(new URL('../src/pages/HomePage.jsx', import.meta.url), 'utf8')
+const player = readFileSync(new URL('../src/player/PlayerPage.jsx', import.meta.url), 'utf8')
+const spatial = readFileSync(new URL('../src/spatial.css', import.meta.url), 'utf8')
 const viteConfig = readFileSync(new URL('../vite.config.js', import.meta.url), 'utf8')
 
 test('uses an ink, wine and amber palette', () => {
@@ -13,41 +16,42 @@ test('uses an ink, wine and amber palette', () => {
 })
 
 test('uses a video-only hero with a poster fallback', () => {
-  assert.match(app, /poster=/)
+  assert.match(home, /poster=/)
   assert.doesNotMatch(css, /url\('\/images\/lilzho-hero-reference\.png'\)/)
 })
 
 test('keeps a semantic readable headline and personal identity', () => {
-  assert.match(app, /<h1 id="hero-title">/)
-  assert.match(app, /hero-role/)
-  assert.match(app, /张皓哲/)
-  assert.doesNotMatch(app, /ParticleTitle/)
+  assert.match(home, /<h1>/)
+  assert.match(home, /profile\.role/)
+  assert.match(home, /profile\.name/)
+  assert.doesNotMatch(home, /ParticleTitle/)
 })
 
 test('keeps decorative pointer feedback at application scope', () => {
   assert.match(app, /className="app-shell"/)
   assert.match(app, /<CursorTrail/)
   assert.doesNotMatch(css, /particle-title:hover/)
-  assert.match(css, /prefers-reduced-motion:reduce/)
+  assert.match(spatial, /prefers-reduced-motion:reduce/)
 })
 
 test('links the hero to an independent music player view', () => {
-  assert.match(app, /view=player/)
+  assert.match(home, /viewHref\('player'\)/)
   assert.match(app, /PlayerPage/)
-  assert.match(app, /media\/autumn\.mp4/)
+  assert.match(home, /autumn\.mp4/)
 })
 
-test('ships a player with two real media tracks and labelled controls', () => {
-  assert.match(app, /trackData/)
-  assert.match(app, /播放氛围片段/)
-  assert.match(app, /上一首/)
-  assert.match(app, /下一首/)
+test('ships a player with labelled controls and an expandable playlist', () => {
+  assert.match(player, /给思绪一点/)
+  assert.match(player, /上一首/)
+  assert.match(player, /下一首/)
+  assert.match(player, /继续显示/)
+  assert.match(player, /removeTrack/)
 })
 
 // Playback, next/previous and cross-view continuity are verified in the browser;
 // those behaviours no longer belong to SitePlayer's implementation details.
 
 test('uses deploy-safe relative assets for GitHub Pages', () => {
-  assert.match(viteConfig, /base:\s*['"]\.\/['"]/)
-  assert.doesNotMatch(app, /src="\/media\//)
+  assert.ok(/base:\s*['"]\.\/['"]/.test(viteConfig))
+  assert.doesNotMatch(home, /src="\/media\//)
 })

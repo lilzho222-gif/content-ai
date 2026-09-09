@@ -37,12 +37,14 @@ export default function PlayerPage() {
   useEffect(() => () => { if (wallpaperUrl.current) URL.revokeObjectURL(wallpaperUrl.current) }, [])
   useEffect(() => setVisibleTracks(48), [music.tracks])
   const playlist = visiblePlaylist(music.tracks, visibleTracks)
-  return <div className="player-page" style={{ '--track-accent': music.track.accent }}>
+  return <div className="player-page spatial-player-page" style={{ '--track-accent': music.track.accent }}>
     <CursorTrail />
     <AmbientVideo className="player-backdrop" src={`${import.meta.env.BASE_URL}media/silver-motion.mp4`} poster={`${import.meta.env.BASE_URL}media/silver-poster.jpg`} />
+    <div className="sound-fluid" aria-hidden="true"><i /><i /><i /></div>
     <header className="player-nav"><a href="./" className="back-link"><ArrowLeft size={18} />返回作品集</a><span>lilzho / listening room</span></header>
     <main className="player-stage">
       <section className="record-visual" aria-label="音乐封面">
+        <div className="sound-heading"><span>SOUND SPACE / 01</span><h1>给思绪一点<br />属于自己的声音。</h1></div>
         <div className={`record-frame ${music.playing ? 'is-playing' : ''}`}><img src={wallpaper || defaultCover} alt={wallpaper ? '自定义播放器壁纸' : music.track.artwork ? `${music.track.title} 封面` : '暗色幻想场景音乐封面'} /><div className="record-disc"><span>lilzho</span></div></div>
         <div className="cover-actions"><label><ImagePlus size={16} />更换壁纸<input type="file" accept="image/jpeg,image/png,image/webp" aria-label="更换播放器壁纸" onChange={event => { updateWallpaper(event.target.files?.[0]); event.target.value = '' }} /></label>{wallpaper && <button onClick={resetWallpaper}><RotateCcw size={15} />恢复默认</button>}</div>
         {wallpaperError && <p className="cover-error" role="alert">{wallpaperError}</p>}
