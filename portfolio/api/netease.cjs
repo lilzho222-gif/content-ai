@@ -2,10 +2,11 @@ const {
   login_qr_key: loginQrKey,
   login_qr_create: loginQrCreate,
   login_qr_check: loginQrCheck,
-  login_status: loginStatus,
   user_playlist: userPlaylist,
   song_url: songUrl,
 } = require('@neteasecloudmusicapienhanced/api')
+const { Readable } = require('node:stream')
+const { extractAccountProfile, playlistSongIds, songProxyUrl } = require('./neteaseUtils.cjs')
 
 const SESSION_NAME = 'lilzho_netease_session'
 const MAX_AGE = 60 * 60 * 24 * 30
@@ -41,6 +42,17 @@ async function fetchNeteaseJson(url, cookie) {
   return response.json()
 }
 
+async function fetchSongDetails(ids, cookie) {
+  const chunks = []
+  for (let index = 0; index < ids.length; index += 50) chunks.push(ids.slice(index, index + 50))
+  const results = await Promise.all(chunks.map(async chunk => {
+    const query = encodeURIComponent(JSON.stringify(chunk.map(id => ({ id: Number(id) }))))
+    const detail = await fetchNeteaseJson(`https://music.163.com/api/v3/song/detail?c=${query}`, cookie)
+    return detail.songs || []
+  }))
+  return results.flat()
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
   if (req.method !== 'GET') return send(res, 405, { message: '仅支持 GET 请求。' })
@@ -67,8 +79,8 @@ module.exports = async function handler(req, res) {
 
     if (action === 'status') {
       if (!cookie) return send(res, 200, { connected: false })
-      const result = bodyOf(await loginStatus({ cookie }))
-      const profile = result.data?.profile || result.profile || null
+      const result = await fetchNeteaseJson('https://music.163.com/api/w/nuser/account/get', cookie)
+      const profile = extractAccountProfile(result)
       return send(res, 200, { connected: Boolean(profile), profile })
     }
 
@@ -84,14 +96,37 @@ module.exports = async function handler(req, res) {
       const id = String(req.query.id || '')
       if (!/^\d+$/.test(id)) return send(res, 400, { message: '歌单信息无效。' })
       const kind = String(req.query.kind || 'playlist')
-      const detail = kind === 'song'
-        ? await fetchNeteaseJson(`https://music.163.com/api/v3/song/detail?c=${encodeURIComponent(`[{"id":${id}}]`)}`, cookie)
-        : await fetchNeteaseJson(`https://music.163.com/api/v6/playlist/detail?id=${id}`, cookie)
-      if (Number(detail.code) >= 400) return send(res, Number(detail.code) === 401 ? 403 : 502, { message: detail.message || '网易云暂时无法读取这个链接。' })
-      const songs = (kind === 'song' ? detail.songs : detail.playlist?.tracks || []).slice(0, 50)
+      let ids = [id]
+      let total = 1
+      if (kind !== 'song') {
+        const detail = await fetchNeteaseJson(`https://music.163.com/api/v6/playlist/detail?id=${id}`, cookie)
+        if (Number(detail.code) >= 400) return send(res, Number(detail.code) === 401 ? 403 : 502, { message: detail.message || '网易云暂时无法读取这个链接。' })
+        total = Number(detail.playlist?.trackCount) || detail.playlist?.trackIds?.length || 0
+        ids = playlistSongIds(detail)
+      }
+      const songs = await fetchSongDetails(ids, cookie)
       if (!songs.length) return send(res, 200, { songs: [], urls: [] })
-      const playable = bodyOf(await songUrl({ id: songs.map(song => song.id).join(','), br: 320000, cookie }))
-      return send(res, 200, { songs, urls: playable.data || [] })
+      const urls = songs.map(song => ({ id: song.id, url: songProxyUrl(song.id) }))
+      return send(res, 200, { songs, urls, total, imported: songs.length })
+    }
+
+    if (action === 'audio') {
+      const id = String(req.query.id || '')
+      if (!/^\d+$/.test(id)) return send(res, 400, { message: '歌曲信息无效。' })
+      const playable = bodyOf(await songUrl({ id, br: 320000, cookie }))
+      const source = playable.data?.find(item => item?.url)?.url
+      if (!source) return send(res, 404, { message: '这首歌受会员或版权限制，暂时无法播放。' })
+      const headers = { 'User-Agent': 'Mozilla/5.0', Referer: 'https://music.163.com/' }
+      if (req.headers.range) headers.Range = req.headers.range
+      const upstream = await fetch(source, { headers, signal: AbortSignal.timeout(20000) })
+      if (!upstream.ok && upstream.status !== 206) return send(res, 502, { message: '网易云音频暂时无法加载。' })
+      for (const name of ['content-type', 'content-length', 'content-range', 'accept-ranges']) {
+        const value = upstream.headers.get(name)
+        if (value) res.setHeader(name, value)
+      }
+      res.status(upstream.status)
+      Readable.fromWeb(upstream.body).on('error', () => res.end()).pipe(res)
+      return
     }
 
     if (action === 'logout') {
