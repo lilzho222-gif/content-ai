@@ -6,7 +6,7 @@ const {
   user_playlist: userPlaylist,
   playlist_track_all: playlistTrackAll,
   song_detail: songDetail,
-  song_url_v1: songUrl,
+  song_url: songUrl,
 } = require('@neteasecloudmusicapienhanced/api')
 
 const SESSION_NAME = 'lilzho_netease_session'
@@ -85,7 +85,7 @@ module.exports = async function handler(req, res) {
       if (Number(detail.code) >= 400) return send(res, Number(detail.code) === 401 ? 403 : 502, { message: detail.message || '网易云暂时无法读取这个链接。' })
       const songs = detail.songs || []
       if (!songs.length) return send(res, 200, { songs: [], urls: [] })
-      const playable = bodyOf(await songUrl({ id: songs.map(song => song.id).join(','), level: 'standard', cookie, unblock: 'false' }))
+      const playable = bodyOf(await songUrl({ id: songs.map(song => song.id).join(','), br: 320000, cookie }))
       return send(res, 200, { songs, urls: playable.data || [] })
     }
 
