@@ -6,10 +6,11 @@ const {
   song_url: songUrl,
 } = require('@neteasecloudmusicapienhanced/api')
 const { Readable } = require('node:stream')
-const { compactNeteaseCookie, extractAccountProfile, playlistSongIds, songProxyUrl } = require('./neteaseUtils.cjs')
+const { compactNeteaseCookie, createExpiringCache, extractAccountProfile, pickRecommendedStartId, playlistSongIds, songProxyUrl } = require('./neteaseUtils.cjs')
 
 const SESSION_NAME = 'lilzho_netease_session'
 const MAX_AGE = 60 * 60 * 24 * 30
+const songSourceCache = createExpiringCache({ ttl: 90 * 1000 })
 
 function bodyOf(result) {
   return result?.body || result || {}
@@ -53,6 +54,17 @@ async function fetchSongDetails(ids, cookie) {
   return results.flat()
 }
 
+async function resolveSongSources(ids, cookie) {
+  const uniqueIds = [...new Set(ids.map(String).filter(id => /^\d+$/.test(id)))]
+  const missing = uniqueIds.filter(id => songSourceCache.get(id) === undefined)
+  if (missing.length) {
+    const result = bodyOf(await songUrl({ id: missing.join(','), br: 320000, cookie }))
+    const byId = new Map((result.data || []).map(item => [String(item.id), item.url || null]))
+    missing.forEach(id => songSourceCache.set(id, byId.get(id) || null))
+  }
+  return uniqueIds.map(id => ({ id, url: songSourceCache.get(id) || null }))
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
   if (req.method !== 'GET') return send(res, 405, { message: '仅支持 GET 请求。' })
@@ -86,6 +98,15 @@ module.exports = async function handler(req, res) {
       return send(res, 200, { connected: Boolean(profile), profile })
     }
 
+    if (action === 'bootstrap') {
+      if (!cookie) return send(res, 200, { connected: false, playlists: [] })
+      const account = await fetchNeteaseJson('https://music.163.com/api/w/nuser/account/get', cookie)
+      const profile = extractAccountProfile(account)
+      if (!profile) return send(res, 200, { connected: false, playlists: [] })
+      const result = bodyOf(await userPlaylist({ uid: String(profile.userId), cookie, limit: 50, offset: 0 }))
+      return send(res, 200, { connected: true, profile, playlists: result.playlist || [] })
+    }
+
     if (action === 'playlists') {
       if (!cookie) return send(res, 401, { message: '请先连接网易云账号。' })
       const uid = String(req.query.uid || '')
@@ -106,17 +127,27 @@ module.exports = async function handler(req, res) {
         total = Number(detail.playlist?.trackCount) || detail.playlist?.trackIds?.length || 0
         ids = playlistSongIds(detail)
       }
-      const songs = await fetchSongDetails(ids, cookie)
+      const [songs, prepared] = await Promise.all([
+        fetchSongDetails(ids, cookie),
+        resolveSongSources(ids.slice(0, 12), cookie),
+      ])
       if (!songs.length) return send(res, 200, { songs: [], urls: [] })
       const urls = songs.map(song => ({ id: song.id, url: songProxyUrl(song.id) }))
-      return send(res, 200, { songs, urls, total, imported: songs.length })
+      return send(res, 200, {
+        songs,
+        urls,
+        total,
+        imported: songs.length,
+        recommendedStartId: pickRecommendedStartId(prepared),
+        unavailableIds: prepared.filter(item => !item.url).map(item => String(item.id)),
+      })
     }
 
     if (action === 'audio') {
       const id = String(req.query.id || '')
       if (!/^\d+$/.test(id)) return send(res, 400, { message: '歌曲信息无效。' })
-      const playable = bodyOf(await songUrl({ id, br: 320000, cookie }))
-      const source = playable.data?.find(item => item?.url)?.url
+      const prepared = await resolveSongSources([id], cookie)
+      const source = prepared[0]?.url
       if (!source) return send(res, 404, { message: '这首歌受会员或版权限制，暂时无法播放。' })
       const headers = { 'User-Agent': 'Mozilla/5.0', Referer: 'https://music.163.com/' }
       if (req.headers.range) headers.Range = req.headers.range

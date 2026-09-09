@@ -6,6 +6,7 @@ import AmbientVideo from '../components/AmbientVideo'
 import { useMusic } from './MusicProvider'
 import NeteasePanel from './NeteasePanel'
 import { validateCoverFile } from './playerCustomization'
+import { visiblePlaylist } from './playerPerformance'
 import './player.css'
 
 const formatTime = value => Number.isFinite(value) ? `${Math.floor(value / 60)}:${Math.floor(value % 60).toString().padStart(2, '0')}` : '0:00'
@@ -16,6 +17,7 @@ export default function PlayerPage() {
   const wallpaperUrl = useRef('')
   const [wallpaper, setWallpaper] = useState('')
   const [wallpaperError, setWallpaperError] = useState('')
+  const [visibleTracks, setVisibleTracks] = useState(48)
   const changeSource = next => { if (next === 'netease') music.pause(); setSource(next) }
   const defaultCover = music.track.artwork || `${import.meta.env.BASE_URL}media/player-cover.jpg`
   const updateWallpaper = file => {
@@ -33,6 +35,8 @@ export default function PlayerPage() {
     setWallpaperError('')
   }
   useEffect(() => () => { if (wallpaperUrl.current) URL.revokeObjectURL(wallpaperUrl.current) }, [])
+  useEffect(() => setVisibleTracks(48), [music.tracks])
+  const playlist = visiblePlaylist(music.tracks, visibleTracks)
   return <div className="player-page" style={{ '--track-accent': music.track.accent }}>
     <CursorTrail />
     <AmbientVideo className="player-backdrop" src={`${import.meta.env.BASE_URL}media/silver-motion.mp4`} poster={`${import.meta.env.BASE_URL}media/silver-poster.jpg`} />
@@ -50,13 +54,14 @@ export default function PlayerPage() {
           {source === 'netease' ? <NeteasePanel onTracksLoaded={() => setSource('local')} /> : <>
             <h1>{music.track.title}</h1><p className="track-descriptor">{music.track.descriptor}</p>
             {music.blocked && <button className="player-unlock" onClick={music.play}><Headphones size={17} />点击开启音乐</button>}
+            {music.buffering && !music.blocked && <p className="player-buffering" role="status">正在准备音频…</p>}
             {music.tracks.length > 0 && <><label className="progress-control"><span className="sr-only">播放进度</span><input type="range" min="0" max={Number.isFinite(music.duration) ? music.duration : 0} step="0.01" value={Math.min(music.time, music.duration || 0)} onChange={event => music.seek(Number(event.target.value))} /><span className="time-row"><i>{formatTime(music.time)}</i><i>{formatTime(music.duration)}</i></span></label>
             {music.error && <p className="media-error" role="status">{music.error}</p>}
             <div className="transport"><button aria-label="上一首" onClick={() => music.choose(music.index - 1)}><SkipBack size={21} /></button><button className="play-control" aria-label={music.playing ? '暂停音乐' : '播放音乐'} onClick={music.toggle}>{music.playing ? <Pause size={28} /> : <Play size={28} />}</button><button aria-label="下一首" onClick={() => music.choose(music.index + 1)}><SkipForward size={21} /></button></div>
             <div className="volume-row"><button aria-label={music.muted ? '取消静音' : '静音'} onClick={() => music.setMuted(!music.muted)}>{music.muted ? <VolumeX size={18} /> : <Volume2 size={18} />}</button><label><span className="sr-only">音量</span><input type="range" min="0" max="1" step="0.01" value={music.volume} onChange={event => { music.setVolume(Number(event.target.value)); music.setMuted(false) }} /></label></div></>}
             {!music.tracks.length && <p className="empty-playlist">还没有歌曲。添加本地音乐，或从网易云歌单载入。</p>}
             <div className="local-import"><label className="import-button"><Plus size={17} />添加自己的歌曲<input aria-label="添加本地歌曲" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac" multiple onChange={event => { music.importFiles(event.target.files); event.target.value = '' }} /></label><small>文件仅在你的浏览器播放，不上传。刷新后需重新添加。</small></div>
-            <div className="track-list"><span><ListMusic size={16} />播放列表 · {music.tracks.length} 首</span>{music.tracks.map((track, index) => <div className={`track-row ${index === music.index ? 'active' : ''}`} key={track.id}><button className="track-select" aria-pressed={index === music.index} onClick={() => music.choose(index)}><i>{String(index + 1).padStart(2, '0')}</i><b>{track.title}</b><small>{track.local ? '本地' : track.source === 'netease' ? '网易云' : '氛围片段'}</small></button><button className="track-delete" aria-label={`从播放列表删除 ${track.title}`} onClick={() => music.removeTrack(track.id)}><Trash2 size={15} /></button></div>)}</div>
+            <div className="track-list"><span><ListMusic size={16} />播放列表 · {playlist.total} 首</span>{playlist.items.map((track, index) => <div className={`track-row ${index === music.index ? 'active' : ''}`} key={track.id}><button className="track-select" aria-pressed={index === music.index} onClick={() => music.choose(index)}><i>{String(index + 1).padStart(2, '0')}</i><b>{track.title}</b><small>{track.local ? '本地' : track.source === 'netease' ? '网易云' : '氛围片段'}</small></button><button className="track-delete" aria-label={`从播放列表删除 ${track.title}`} onClick={() => music.removeTrack(track.id)}><Trash2 size={15} /></button></div>)}{playlist.hasMore && <button className="load-more-tracks" onClick={() => setVisibleTracks(count => count + 48)}>继续显示 · 还剩 {playlist.total - playlist.items.length} 首</button>}</div>
           </>}
         </section>
       </BorderGlow>

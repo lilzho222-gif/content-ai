@@ -18,11 +18,10 @@ export default function NeteasePanel({ onTracksLoaded }) {
 
   const loadAccount = useCallback(async () => {
     try {
-      const session = await requestNetease('status', {}, undefined, 12000)
+      const session = await requestNetease('bootstrap', {}, undefined, 16000)
       if (!session.connected || !session.profile) { setAccount(null); setPlaylists([]); return false }
       setAccount(session.profile)
-      const result = await requestNetease('playlists', { uid: session.profile.userId })
-      setPlaylists(result.playlists || [])
+      setPlaylists(session.playlists || [])
       setStatus(`已连接 ${session.profile.nickname || '网易云账号'}`)
       return true
     } catch (reason) {
@@ -72,7 +71,7 @@ export default function NeteasePanel({ onTracksLoaded }) {
       const result = await requestNetease('tracks', { id: playlist.id })
       const tracks = mergeNeteaseTracks(result.songs, result.urls)
       if (!tracks.length) throw new Error('这个歌单里暂时没有可以播放的歌曲。')
-      music.replaceTracks(tracks)
+      music.replaceTracks(tracks, { recommendedId: result.recommendedStartId })
       setStatus(`已载入《${playlist.name}》· ${tracks.length} 首`)
       onTracksLoaded?.()
     } catch (reason) { setError(reason.message) } finally { setBusy(false) }
@@ -92,7 +91,7 @@ export default function NeteasePanel({ onTracksLoaded }) {
       const result = await requestNetease(link.api.action, { id: link.api.id, kind: link.api.kind })
       const tracks = mergeNeteaseTracks(result.songs, result.urls)
       if (!tracks.length) throw new Error(link.kind === 'playlist' ? '这个歌单没有可播放的歌曲。' : '这首歌暂时无法播放。')
-      music.pause(); music.replaceTracks(tracks)
+      music.pause(); music.replaceTracks(tracks, { recommendedId: result.recommendedStartId })
       setStatus(`已从链接载入 ${tracks.length} 首歌曲`)
       try { localStorage.setItem('lilzho-netease-link', link.url) } catch { /* Private browsing may disable storage. */ }
       onTracksLoaded?.()
