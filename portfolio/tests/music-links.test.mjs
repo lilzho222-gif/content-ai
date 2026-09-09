@@ -8,7 +8,9 @@ test('converts a shared hash song URL to the official player without autoplay', 
   assert.equal(song.url, 'https://music.163.com/#/song?id=186016')
 })
 test('keeps playlist type and validates the supplied ID', () => {
-  assert.equal(parseNeteaseLink('https://music.163.com/playlist?id=12345').kind, 'playlist')
+  const playlist = parseNeteaseLink('https://music.163.com/playlist?id=12345')
+  assert.equal(playlist.kind, 'playlist')
+  assert.deepEqual(playlist.api, { action: 'tracks', id: '12345', kind: 'playlist' })
   assert.throws(() => parseNeteaseLink('https://music.163.com/song?id=abc'))
 })
 test('rejects foreign hosts, script URLs and unsupported account pages', () => {

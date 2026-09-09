@@ -30,16 +30,23 @@ export function mergeNeteaseTracks(songs = [], urls = []) {
   })
 }
 
-export async function requestNetease(action, params = {}, signal) {
+export async function requestNetease(action, params = {}, signal, timeoutMs = 12000) {
   const url = new URL(getNeteaseApiEndpoint())
   url.searchParams.set('action', action)
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value))
   })
-  const response = await fetch(url, { credentials: 'include', signal })
-  const contentType = response.headers.get('content-type') || ''
-  if (!contentType.includes('application/json')) throw new Error('账号连接需要在 Render 版本中使用。')
-  const payload = await response.json().catch(() => ({}))
-  if (!response.ok) throw new Error(payload.message || '网易云音乐连接失败，请稍后重试。')
-  return payload
+  const controller = signal ? null : new AbortController()
+  let timer
+  try {
+    const response = await Promise.race([
+      fetch(url, { credentials: 'include', signal: signal || controller.signal }),
+      new Promise((_, reject) => { timer = setTimeout(() => { controller?.abort(); reject(new Error('网易云响应超时，请重试。')) }, timeoutMs) }),
+    ])
+    const contentType = response.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) throw new Error('账号连接需要在 Render 版本中使用。')
+    const payload = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(payload.message || '网易云音乐连接失败，请稍后重试。')
+    return payload
+  } finally { clearTimeout(timer) }
 }

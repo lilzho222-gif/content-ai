@@ -5,6 +5,7 @@ const {
   login_status: loginStatus,
   user_playlist: userPlaylist,
   playlist_track_all: playlistTrackAll,
+  song_detail: songDetail,
   song_url_v1: songUrl,
 } = require('@neteasecloudmusicapienhanced/api')
 
@@ -75,10 +76,13 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'tracks') {
-      if (!cookie) return send(res, 401, { message: '请先连接网易云账号。' })
       const id = String(req.query.id || '')
       if (!/^\d+$/.test(id)) return send(res, 400, { message: '歌单信息无效。' })
-      const detail = bodyOf(await playlistTrackAll({ id, cookie, limit: 50, offset: 0 }))
+      const kind = String(req.query.kind || 'playlist')
+      const detail = kind === 'song'
+        ? bodyOf(await songDetail({ ids: id, cookie }))
+        : bodyOf(await playlistTrackAll({ id, cookie, limit: 50, offset: 0 }))
+      if (Number(detail.code) >= 400) return send(res, Number(detail.code) === 401 ? 403 : 502, { message: detail.message || '网易云暂时无法读取这个链接。' })
       const songs = detail.songs || []
       if (!songs.length) return send(res, 200, { songs: [], urls: [] })
       const playable = bodyOf(await songUrl({ id: songs.map(song => song.id).join(','), level: 'standard', cookie, unblock: 'false' }))

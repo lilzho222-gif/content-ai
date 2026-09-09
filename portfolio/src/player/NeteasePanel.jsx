@@ -4,7 +4,7 @@ import { mergeNeteaseTracks, qrStatusLabel, requestNetease } from './neteaseAcco
 import { parseNeteaseLink } from './musicLinks'
 import { useMusic } from './MusicProvider'
 
-export default function NeteasePanel() {
+export default function NeteasePanel({ onTracksLoaded }) {
   const music = useMusic()
   const timer = useRef(null)
   const [account, setAccount] = useState(null)
@@ -14,7 +14,6 @@ export default function NeteasePanel() {
   const [busy, setBusy] = useState(true)
   const [apiAvailable, setApiAvailable] = useState(true)
   const [input, setInput] = useState(() => { try { return localStorage.getItem('lilzho-netease-link') || '' } catch { return '' } })
-  const [selected, setSelected] = useState(null)
   const [error, setError] = useState('')
 
   const loadAccount = useCallback(async () => {
@@ -26,9 +25,11 @@ export default function NeteasePanel() {
       setPlaylists(result.playlists || [])
       setStatus(`已连接 ${session.profile.nickname || '网易云账号'}`)
       return true
-    } catch {
-      setApiAvailable(false)
-      setStatus('账号连接将在 Render 版本启用')
+    } catch (reason) {
+      const staticSite = /Render/.test(reason.message)
+      setApiAvailable(!staticSite)
+      setStatus(staticSite ? '账号连接将在 Render 版本启用' : '账号状态检查超时，仍可重新扫码')
+      if (!staticSite) setError(reason.message)
       return false
     } finally { setBusy(false) }
   }, [])
@@ -68,6 +69,7 @@ export default function NeteasePanel() {
       if (!tracks.length) throw new Error('这个歌单里暂时没有可以播放的歌曲。')
       music.replaceTracks(tracks)
       setStatus(`已载入《${playlist.name}》· ${tracks.length} 首`)
+      onTracksLoaded?.()
     } catch (reason) { setError(reason.message) } finally { setBusy(false) }
   }
 
@@ -77,13 +79,21 @@ export default function NeteasePanel() {
     catch (reason) { setError(reason.message) } finally { setBusy(false) }
   }
 
-  const submit = event => {
+  const submit = async event => {
     event.preventDefault()
     try {
-      const result = parseNeteaseLink(input)
-      music.pause(); setSelected(result); setError('')
-      try { localStorage.setItem('lilzho-netease-link', result.url) } catch { /* Private browsing may disable storage. */ }
-    } catch (reason) { setError(reason.message) }
+      const link = parseNeteaseLink(input)
+      setBusy(true); setError(''); setStatus('正在读取链接中的歌曲')
+      const result = await requestNetease(link.api.action, { id: link.api.id, kind: link.api.kind })
+      const tracks = mergeNeteaseTracks(result.songs, result.urls)
+      if (!tracks.length) throw new Error(link.kind === 'playlist' ? '这个歌单没有可播放的歌曲。' : '这首歌暂时无法播放。')
+      music.pause(); music.replaceTracks(tracks)
+      setStatus(`已从链接载入 ${tracks.length} 首歌曲`)
+      try { localStorage.setItem('lilzho-netease-link', link.url) } catch { /* Private browsing may disable storage. */ }
+      onTracksLoaded?.()
+    } catch (reason) {
+      setError(/隐私/.test(reason.message) ? '这个歌单是私密的。请先扫码连接创建该歌单的网易云账号。' : reason.message)
+    } finally { setBusy(false) }
   }
 
   return <section className="netease-panel" aria-labelledby="netease-heading">
@@ -98,8 +108,7 @@ export default function NeteasePanel() {
     </div>
 
     <div className="netease-divider"><span>或者使用公开链接</span></div>
-    <form onSubmit={submit}><label htmlFor="netease-link">网易云歌曲 / 公开歌单链接</label><div className="netease-input-row"><input id="netease-link" value={input} onChange={event => setInput(event.target.value)} placeholder="https://music.163.com/#/playlist?id=…" type="url" required aria-describedby="netease-help" /><button type="submit"><Link2 size={17} />载入官方播放器</button></div><small id="netease-help">连接不可用时仍可使用此入口；会员与版权限制由网易云决定。</small></form>
+    <form onSubmit={submit}><label htmlFor="netease-link">网易云歌曲 / 歌单链接</label><div className="netease-input-row"><input id="netease-link" value={input} onChange={event => setInput(event.target.value)} placeholder="https://music.163.com/#/playlist?id=…" type="url" required aria-describedby="netease-help" /><button type="submit" disabled={busy}><Link2 size={17} />导入本站播放器</button></div><small id="netease-help">私密歌单需先扫码连接创建该歌单的账号；会员与版权限制由网易云决定。</small></form>
     {error && <p className="media-error" role="alert">{error}</p>}
-    {selected && <div className="netease-embed"><iframe key={selected.embed} title="网易云官方外链播放器" src={selected.embed} width="100%" height={selected.kind === 'song' ? 110 : 450} allow="autoplay" /><p>若播放器空白或无法播放，请<a href={selected.url} target="_blank" rel="noreferrer">在网易云打开 <ArrowUpRight size={14} /></a></p><button onClick={() => setSelected(null)}>关闭官方播放器</button></div>}
   </section>
 }

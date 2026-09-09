@@ -55,3 +55,22 @@ test('rejects a static HTML fallback instead of pretending the API exists', asyn
   globalThis.window = previousWindow
   globalThis.fetch = previousFetch
 })
+
+test('stops waiting when the hosted NetEase API does not respond', async () => {
+  const previousWindow = globalThis.window
+  const previousFetch = globalThis.fetch
+  globalThis.window = { location: { href: 'https://example.com/player' } }
+  globalThis.fetch = () => new Promise(() => {})
+  try {
+    await assert.rejects(
+      Promise.race([
+        requestNetease('status', {}, undefined, 5),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('test guard timeout')), 50)),
+      ]),
+      /网易云响应超时/,
+    )
+  } finally {
+    globalThis.window = previousWindow
+    globalThis.fetch = previousFetch
+  }
+})

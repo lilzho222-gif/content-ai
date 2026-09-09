@@ -47,7 +47,7 @@ export default function PlayerPage() {
       <BorderGlow backgroundColor="#131216" glowColor="25 65 70" colors={['#b47764', '#873b50', '#c4b3a1']} glowIntensity={.6} borderRadius={20} className="player-glow">
         <section className="player-console" aria-label="音乐播放器">
           <div className="source-switch" role="group" aria-label="音乐来源"><button aria-pressed={source === 'local'} onClick={() => changeSource('local')}>我的播放列表</button><button aria-pressed={source === 'netease'} onClick={() => changeSource('netease')}>网易云音乐 <span>↗</span></button></div>
-          {source === 'netease' ? <NeteasePanel /> : <>
+          {source === 'netease' ? <NeteasePanel onTracksLoaded={() => setSource('local')} /> : <>
             <h1>{music.track.title}</h1><p className="track-descriptor">{music.track.descriptor}</p>
             {music.blocked && <button className="player-unlock" onClick={music.play}><Headphones size={17} />点击开启音乐</button>}
             {music.tracks.length > 0 && <><label className="progress-control"><span className="sr-only">播放进度</span><input type="range" min="0" max={Number.isFinite(music.duration) ? music.duration : 0} step="0.01" value={Math.min(music.time, music.duration || 0)} onChange={event => music.seek(Number(event.target.value))} /><span className="time-row"><i>{formatTime(music.time)}</i><i>{formatTime(music.duration)}</i></span></label>

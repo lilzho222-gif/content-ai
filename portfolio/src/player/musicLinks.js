@@ -6,5 +6,11 @@ export function parseNeteaseLink(input) {
   const kind = route.pathname === '/song' || route.pathname === '/m/song' ? 'song' : route.pathname === '/playlist' || route.pathname === '/m/playlist' ? 'playlist' : null
   const id = route.searchParams.get('id')
   if (!kind || !id || !/^\d{1,20}$/.test(id)) throw new Error('链接中需要包含有效的歌曲或歌单 ID。')
-  return { kind, id, url: `https://music.163.com/#/${kind}?id=${id}`, embed: `https://music.163.com/outchain/player?type=${kind === 'song' ? 2 : 0}&id=${id}&auto=0&height=${kind === 'song' ? 66 : 430}` }
+  return {
+    kind,
+    id,
+    url: `https://music.163.com/#/${kind}?id=${id}`,
+    embed: `https://music.163.com/outchain/player?type=${kind === 'song' ? 2 : 0}&id=${id}&auto=0&height=${kind === 'song' ? 66 : 430}`,
+    api: { action: 'tracks', id, kind },
+  }
 }
