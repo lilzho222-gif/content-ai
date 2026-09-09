@@ -12,6 +12,7 @@ import BorderGlow from './components/reactbits/BorderGlow'
 import FlowingMenu from './components/reactbits/FlowingMenu'
 import EyeScene from './components/EyeScene'
 import AmbientVideo from './components/AmbientVideo'
+import VideoBackdrop from './components/VideoBackdrop'
 import { MusicProvider } from './player/MusicProvider'
 import { tracks as trackData } from './player/trackData'
 import './styles.css'
@@ -21,7 +22,7 @@ const github = 'https://github.com/lilzho222-gif/content-ai'
 const playerLabels = { play: '播放氛围片段', previous: '上一首', next: '下一首' }
 const Glass = ({ className = '', children }) => <div className={`glass ${className}`}>{children}</div>
 const media = file => `${import.meta.env.BASE_URL}media/${file}`
-const glow = { colors: ['#cc7858', '#923c52', '#c5b5a3'], glowColor: '25 65 70', glowIntensity: .65, borderRadius: 18, backgroundColor: '#111217', fillOpacity: .12 }
+const glow = { colors: ['#cc7858', '#923c52', '#c5b5a3'], glowColor: '25 65 70', glowIntensity: .85, borderRadius: 18, backgroundColor: '#111217', fillOpacity: .16 }
 
 function Navigation() {
   const [open, setOpen] = useState(false)
@@ -113,7 +114,9 @@ function ProjectVisual() {
 }
 
 function Project() {
-  return <Reveal as="section" className="project section" id="project">
+  return <section className="project video-section" id="project">
+    <VideoBackdrop name="作品" src={media('crimson-motion.mp4')} poster={media('crimson-poster.jpg')} />
+    <div className="section section-foreground">
     <div className="section-title"><span>精选作品</span><h2>从真实创作需求<br />出发的一次尝试。</h2></div>
     <BorderGlow {...glow} className="project-glow"><article className="feature">
       <ProjectVisual />
@@ -129,13 +132,14 @@ function Project() {
         <a href={github} target="_blank" rel="noreferrer">查看 GitHub 项目 <ArrowUpRight size={17} /></a>
       </div>
     </article></BorderGlow>
-  </Reveal>
+    </div>
+  </section>
 }
 
 function MusicPortal() {
   const preview = trackData[1]
   return <Reveal as="section" className="music-portal">
-    <video src={preview.src} autoPlay muted loop playsInline aria-hidden="true" />
+    <AmbientVideo src={preview.src} poster={media('silver-poster.jpg')} />
     <div className="portal-shade" aria-hidden="true" />
     <div className="portal-copy">
       <Headphones size={30} />
@@ -154,17 +158,20 @@ const skills = [
 ]
 
 function Capabilities() {
-  return <Reveal as="section" className="capabilities section">
+  return <section className="capabilities video-section" id="capabilities">
+    <VideoBackdrop name="能力" src={media('silver-motion.mp4')} poster={media('silver-poster.jpg')} tone="silver" />
+    <div className="section section-foreground">
     <div className="section-title compact"><span>我能做什么</span><h2>仍在学习，<br />也已经在做。</h2></div>
     <div className="capability-list">{skills.map((skill, index) => <article key={skill.title}>
       <span className="skill-index">0{index + 1}</span><div className="skill-icon">{skill.icon}</div>
       <h3>{skill.title}</h3><p>{skill.text}</p><div>{skill.tags.map(tag => <i key={tag}>{tag}</i>)}</div>
     </article>)}</div>
-  </Reveal>
+    </div>
+  </section>
 }
 
 function Direction() {
-  return <Reveal as="section" className="direction section">
+  return <Reveal as="section" className="direction section" id="exploring">
     <EyeScene />
     <div className="direction-content">
       <div className="section-title"><h2>保持好奇，<br /><em>看见更多可能。</em></h2><p className="eye-caption">移动鼠标，探索视线的方向。</p></div>
@@ -173,23 +180,13 @@ function Direction() {
   </Reveal>
 }
 
-function MotionGallery() {
-  return <section className="motion-gallery section" aria-labelledby="motion-heading">
-    <div className="gallery-heading"><h2 id="motion-heading">灵感，也有它的节奏。</h2><p>光、运动与情绪，是我观察内容的另一种方式。<br />这些收藏的视觉片段，让想法继续发生。</p></div>
-    <div className="motion-grid">
-      <figure className="motion-piece crimson-piece"><AmbientVideo src={media('crimson-motion.mp4')} poster={media('crimson-poster.jpg')} controls /><figcaption><span>暗红 · 凝聚</span><small>视觉收藏</small></figcaption></figure>
-      <figure className="motion-piece silver-piece"><AmbientVideo src={media('silver-motion.mp4')} poster={media('silver-poster.jpg')} controls /><figcaption><span>银白 · 流动</span><small>视觉收藏</small></figcaption></figure>
-    </div>
-  </section>
-}
-
 function ExploreMenu() {
-  return <section className="explore-menu section" aria-labelledby="explore-heading">
+  return <section className="explore-menu section" id="explore-menu" aria-labelledby="explore-heading">
     <div className="explore-heading"><h2 id="explore-heading">接下来，去哪里？</h2><p>认识我，看看作品，或者听一首歌。</p></div>
     <FlowingMenu items={[
-      { link: '#project', text: '看看作品 / Selected work', image: media('silver-poster.jpg') },
-      { link: '#about', text: '认识我 / About lilzho', image: media('crimson-poster.jpg') },
-      { link: '?view=player', text: '听点声音 / Listening room', image: media('player-cover.jpg') },
+      { link: '#project', text: '看看作品', image: media('silver-poster.jpg') },
+      { link: '#exploring', text: '探索更多', image: media('crimson-poster.jpg') },
+      { link: '?view=player', text: '听点声音', image: media('player-cover.jpg') },
     ]} speed={18} textColor="#e9e0d7" bgColor="#0c0d11" marqueeBgColor="#d4a077" marqueeTextColor="#171215" borderColor="#3b3030" />
   </section>
 }
@@ -208,7 +205,7 @@ function Footer() {
 }
 
 function PortfolioPage() {
-  return <div className="app-shell"><CursorTrail /><Navigation /><main><Hero /><About /><ImageInterlude /><Project /><MotionGallery /><Capabilities /><Direction /><MusicPortal /><Now /><ExploreMenu /></main><Footer /><SitePlayer /></div>
+  return <div className="app-shell"><CursorTrail /><Navigation /><main><Hero /><About /><ExploreMenu /><Project /><Capabilities /><Direction /><ImageInterlude /><MusicPortal /><Now /></main><Footer /><SitePlayer /></div>
 }
 
 function App() {

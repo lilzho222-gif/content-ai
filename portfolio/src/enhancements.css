@@ -13,3 +13,26 @@ html{overflow-x:clip}.explore-menu .menu{padding:0;margin:0;align-items:stretch}
 @media(max-width:900px){.direction-content{gap:16%;}.gallery-heading{display:block}.gallery-heading p{margin-top:20px}}
 @media(max-width:700px){.hero-note-glow{left:21px;right:21px;bottom:79px;width:auto}.hero-note-content{padding:10px 14px}.project-glow{margin-top:35px}.motion-gallery{padding-block:70px}.motion-grid{grid-template-columns:1fr;gap:24px}.silver-piece{margin-top:0}.motion-piece video{aspect-ratio:16/9}.gallery-heading h2{font-size:34px}.direction{min-height:820px;padding:75px 23px}.direction-content{display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;min-height:660px;gap:240px}.eye-scene{inset:90px -30% 180px}.direction-copy{padding:8px 20px}.eye-caption{font-size:12px}.explore-heading{display:block}.explore-menu{padding:70px 23px}.explore-menu .menu-wrap{height:300px}.explore-menu .menu__item-link{font-size:19px;padding-inline:13px}.site-player-controls{gap:0}.site-player-controls button{min-width:37px;min-height:44px}.site-player-expand{min-width:34px;min-height:44px}.sound-unlock{bottom:90px}.site-player{gap:4px}.site-player-copy{gap:7px}.app-shell{padding-bottom:85px}}
 @media(prefers-reduced-motion:reduce){.explore-menu .marquee{display:none}.site-player-copy>i.playing span{animation:none;height:10px}.motion-ready .reveal{opacity:1;transform:none;clip-path:none}.border-glow-card::before,.border-glow-card::after{transition:none}}
+
+/* Full-bleed footage belongs to the section, never to a media card. */
+.video-section{position:relative;isolation:isolate;overflow:hidden;max-width:none;padding:0;background:var(--ink)}
+.section-video-layer{position:absolute;inset:0;z-index:-1;pointer-events:none;background:#100b10}
+.section-video-layer video{width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.7) brightness(.72)}
+.section-video-shade{position:absolute;inset:0;background:linear-gradient(0deg,var(--ink),transparent 17%,transparent 78%,var(--ink)),linear-gradient(90deg,rgba(8,10,15,.62),rgba(12,8,13,.12) 65%,rgba(8,10,15,.3))}
+.section-video-layer.silver video{filter:saturate(.35) brightness(.45);object-position:64% center}
+.silver .section-video-shade{background:linear-gradient(0deg,var(--ink),transparent 20%,transparent 80%,var(--ink)),linear-gradient(90deg,rgba(7,10,16,.7),rgba(8,11,17,.26) 75%)}
+.section-foreground{position:relative;z-index:1;padding-block:130px 150px}
+.video-section .section-title{text-shadow:0 2px 30px #080b10}
+.video-section .project-glow{--card-bg:rgba(12,14,20,.48)!important;backdrop-filter:blur(12px)}
+.video-section .project-visual{background:linear-gradient(125deg,rgba(72,33,35,.44),rgba(11,15,23,.68))}
+.video-section .feature-info{background:rgba(13,17,24,.82)}
+.video-section .capability-list{background:rgba(9,13,20,.74);backdrop-filter:blur(14px);border:1px solid rgba(216,212,206,.18);border-radius:18px;overflow:hidden;padding-inline:28px}
+.video-section .capability-list article:last-child{border-bottom:0}
+.video-section .capability-list p{color:#d0cac5}
+.backdrop-toggle{position:absolute;bottom:35px;right:max(30px,calc((100% - 1228px)/2));z-index:3;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid rgba(226,198,172,.25);border-radius:8px;background:rgba(11,13,18,.72);backdrop-filter:blur(10px);font-size:12px;color:#d2c4b8}
+.backdrop-toggle:hover{border-color:var(--amber);color:var(--bone)}
+.explore-menu{padding-block:50px 90px}.explore-menu .menu__item-link{font-size:clamp(26px,3vw,40px);letter-spacing:.02em}.explore-menu .menu__item-link::before{content:'0' counter(menu-item);font:11px 'DM Mono';color:#c49270;margin-right:35px}.explore-menu .menu{counter-reset:menu-item}.explore-menu .menu__item{counter-increment:menu-item}
+@media(max-width:700px){.section-foreground{padding:90px 23px 120px}.video-section .capability-list{padding-inline:16px}.section-video-layer video{object-position:60% center}.section-video-layer.silver video{filter:saturate(.35) brightness(.38)}.backdrop-toggle{bottom:30px;right:23px}.explore-menu{padding:20px 23px 70px}.explore-menu .menu__item-link{font-size:25px}.explore-menu .menu__item-link::before{margin-right:22px}}
+.backdrop-toggle{right:auto;left:max(30px,calc((100% - 1228px)/2))}
+.project .section-video-layer video{position:absolute;top:0;left:0;height:780px;object-position:65% center;filter:saturate(.8) brightness(.9)}
+@media(max-width:700px){.backdrop-toggle{left:23px}.project .section-video-layer video{height:720px;object-position:65% center}}
