@@ -60,8 +60,16 @@ export function MusicProvider({ children }) {
     desired.current = true
     setTracks(current => [...current, ...added]); setIndex(tracks.length); setError('')
   }
+  const replaceTracks = nextTracks => {
+    if (!Array.isArray(nextTracks) || !nextTracks.length) { setError('这个歌单暂时没有可播放的歌曲。'); return false }
+    desired.current = true
+    setTracks(nextTracks)
+    setIndex(0)
+    setError('')
+    return true
+  }
   const seek = next => { if (Number.isFinite(duration) && duration > 0) { audioRef.current.currentTime = next; setTime(next) } }
-  const value = { tracks, track, index, playing, blocked, error, volume, muted, duration, time, play, pause, choose, importFiles, seek, setVolume, setMuted, toggle: () => playing ? pause() : play() }
+  const value = { tracks, track, index, playing, blocked, error, volume, muted, duration, time, play, pause, choose, importFiles, replaceTracks, seek, setVolume, setMuted, toggle: () => playing ? pause() : play() }
   return <MusicContext.Provider value={value}>
     <audio ref={audioRef} preload="metadata" onPlay={() => { setPlaying(true); setBlocked(false) }} onPause={() => setPlaying(false)} onLoadedMetadata={event => setDuration(event.currentTarget.duration)} onTimeUpdate={event => setTime(event.currentTarget.currentTime)} onEnded={() => choose(index + 1)} onError={() => { setError('音频加载失败，可以重试或切换歌曲。'); setPlaying(false) }} />
     {children}

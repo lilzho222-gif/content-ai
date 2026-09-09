@@ -19,7 +19,7 @@ export default function PlayerPage() {
     <header className="player-nav"><a href="./" className="back-link"><ArrowLeft size={18} />返回作品集</a><span>lilzho / listening room</span></header>
     <main className="player-stage">
       <section className="record-visual" aria-label="音乐封面">
-        <div className={`record-frame ${music.playing ? 'is-playing' : ''}`}><img src={`${import.meta.env.BASE_URL}media/player-cover.jpg`} alt="暗色幻想场景音乐封面" /><div className="record-disc"><span>lilzho</span></div></div>
+        <div className={`record-frame ${music.playing ? 'is-playing' : ''}`}><img src={music.track.artwork || `${import.meta.env.BASE_URL}media/player-cover.jpg`} alt={music.track.artwork ? `${music.track.title} 封面` : '暗色幻想场景音乐封面'} /><div className="record-disc"><span>lilzho</span></div></div>
         <p>在声音里停一会儿，让想法慢慢生长。</p>
       </section>
       <BorderGlow backgroundColor="#131216" glowColor="25 65 70" colors={['#b47764', '#873b50', '#c4b3a1']} glowIntensity={.6} borderRadius={20} className="player-glow">
