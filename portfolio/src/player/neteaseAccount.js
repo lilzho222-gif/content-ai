@@ -30,7 +30,7 @@ export function mergeNeteaseTracks(songs = [], urls = []) {
   })
 }
 
-export async function requestNetease(action, params = {}, signal, timeoutMs = 12000) {
+export async function requestNetease(action, params = {}, signal, timeoutMs = 30000) {
   const url = new URL(getNeteaseApiEndpoint())
   url.searchParams.set('action', action)
   Object.entries(params).forEach(([key, value]) => {
@@ -48,5 +48,10 @@ export async function requestNetease(action, params = {}, signal, timeoutMs = 12
     const payload = await response.json().catch(() => ({}))
     if (!response.ok) throw new Error(payload.message || '网易云音乐连接失败，请稍后重试。')
     return payload
+  } catch (error) {
+    if (controller?.signal.aborted && error?.name === 'AbortError') {
+      throw new Error('网易云响应超时，请重试。')
+    }
+    throw error
   } finally { clearTimeout(timer) }
 }

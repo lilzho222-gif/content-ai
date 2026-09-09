@@ -74,3 +74,25 @@ test('stops waiting when the hosted NetEase API does not respond', async () => {
     globalThis.fetch = previousFetch
   }
 })
+
+test('turns an AbortError from fetch into the friendly timeout message', async () => {
+  const previousWindow = globalThis.window
+  const previousFetch = globalThis.fetch
+  globalThis.window = { location: { href: 'https://example.com/player' } }
+  globalThis.fetch = (_url, options) => new Promise((_, reject) => {
+    options.signal.addEventListener('abort', () => {
+      const error = new Error('signal is aborted without reason')
+      error.name = 'AbortError'
+      reject(error)
+    }, { once: true })
+  })
+  try {
+    await assert.rejects(
+      requestNetease('qr-start', {}, undefined, 5),
+      /网易云响应超时/,
+    )
+  } finally {
+    globalThis.window = previousWindow
+    globalThis.fetch = previousFetch
+  }
+})

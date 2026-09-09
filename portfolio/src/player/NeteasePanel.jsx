@@ -18,7 +18,7 @@ export default function NeteasePanel({ onTracksLoaded }) {
 
   const loadAccount = useCallback(async () => {
     try {
-      const session = await requestNetease('status')
+      const session = await requestNetease('status', {}, undefined, 12000)
       if (!session.connected || !session.profile) { setAccount(null); setPlaylists([]); return false }
       setAccount(session.profile)
       const result = await requestNetease('playlists', { uid: session.profile.userId })
