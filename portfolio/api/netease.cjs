@@ -4,8 +4,6 @@ const {
   login_qr_check: loginQrCheck,
   login_status: loginStatus,
   user_playlist: userPlaylist,
-  playlist_track_all: playlistTrackAll,
-  song_detail: songDetail,
   song_url: songUrl,
 } = require('@neteasecloudmusicapienhanced/api')
 
@@ -34,6 +32,13 @@ function clearSession(res) {
 
 function send(res, status, payload) {
   res.status(status).json(payload)
+}
+
+async function fetchNeteaseJson(url, cookie) {
+  const headers = { 'User-Agent': 'Mozilla/5.0', Referer: 'https://music.163.com/' }
+  if (cookie) headers.Cookie = cookie
+  const response = await fetch(url, { headers, signal: AbortSignal.timeout(10000) })
+  return response.json()
 }
 
 module.exports = async function handler(req, res) {
@@ -80,10 +85,10 @@ module.exports = async function handler(req, res) {
       if (!/^\d+$/.test(id)) return send(res, 400, { message: '歌单信息无效。' })
       const kind = String(req.query.kind || 'playlist')
       const detail = kind === 'song'
-        ? bodyOf(await songDetail({ ids: id, cookie }))
-        : bodyOf(await playlistTrackAll({ id, cookie, limit: 50, offset: 0 }))
+        ? await fetchNeteaseJson(`https://music.163.com/api/v3/song/detail?c=${encodeURIComponent(`[{"id":${id}}]`)}`, cookie)
+        : await fetchNeteaseJson(`https://music.163.com/api/v6/playlist/detail?id=${id}`, cookie)
       if (Number(detail.code) >= 400) return send(res, Number(detail.code) === 401 ? 403 : 502, { message: detail.message || '网易云暂时无法读取这个链接。' })
-      const songs = detail.songs || []
+      const songs = (kind === 'song' ? detail.songs : detail.playlist?.tracks || []).slice(0, 50)
       if (!songs.length) return send(res, 200, { songs: [], urls: [] })
       const playable = bodyOf(await songUrl({ id: songs.map(song => song.id).join(','), br: 320000, cookie }))
       return send(res, 200, { songs, urls: playable.data || [] })
