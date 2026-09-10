@@ -19,7 +19,7 @@ export default function PlayerPage() {
   const [wallpaperError, setWallpaperError] = useState('')
   const [visibleTracks, setVisibleTracks] = useState(48)
   const changeSource = next => { if (next === 'netease') music.pause(); setSource(next) }
-  const defaultCover = music.track.artwork || `${import.meta.env.BASE_URL}media/player-cover.jpg`
+  const defaultCover = music.track.artwork || `${import.meta.env.BASE_URL}media/night-garden.png`
   const updateWallpaper = file => {
     const validation = validateCoverFile(file)
     if (!validation.ok) { setWallpaperError(validation.message); return }
@@ -39,7 +39,7 @@ export default function PlayerPage() {
   const playlist = visiblePlaylist(music.tracks, visibleTracks)
   return <div className="player-page spatial-player-page" style={{ '--track-accent': music.track.accent }}>
     <CursorTrail />
-    <AmbientVideo className="player-backdrop" src={`${import.meta.env.BASE_URL}media/silver-motion.mp4`} poster={`${import.meta.env.BASE_URL}media/silver-poster.jpg`} />
+    <AmbientVideo className="player-backdrop" src={`${import.meta.env.BASE_URL}media/night-garden.mp4`} poster={`${import.meta.env.BASE_URL}media/night-garden.png`} />
     <div className="sound-fluid" aria-hidden="true"><i /><i /><i /></div>
     <header className="player-nav"><a href="./" className="back-link"><ArrowLeft size={18} />返回作品集</a><span>lilzho / listening room</span></header>
     <main className="player-stage">

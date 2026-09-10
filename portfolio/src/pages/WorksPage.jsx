@@ -7,6 +7,8 @@ import PageFooter from '../components/PageFooter'
 import SitePlayer from '../player/SitePlayer'
 import { projects } from '../data/portfolio'
 import { viewHref } from '../navigation'
+import { FlyingPosterRail } from '../components/PortalEffects'
+import './portal-home.css'
 
 function ProjectDeck({ project }) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
@@ -32,6 +34,7 @@ export default function WorksPage() {
         <div className="works-decks">{projects.map(project => <ProjectDeck project={project} key={project.id} />)}</div>
         <div className="future-slot"><span>NEXT SLOT</span><p>下一件真实作品完成后，会从这里进入作品空间。</p></div>
       </section>
+      <FlyingPosterRail />
       <section className="works-menu"><FlowingMenu items={projects.map(project => ({ link: viewHref('project', { id: project.id }), text: project.shortTitle, image: project.poster }))} speed={14} textColor="#ece3da" bgColor="#0d1115" marqueeBgColor="#ca9164" marqueeTextColor="#161116" borderColor="#373238" /></section>
     </main>
     <PageFooter /><SitePlayer />

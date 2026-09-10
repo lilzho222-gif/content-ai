@@ -7,18 +7,26 @@ import PageFooter from '../components/PageFooter'
 import SitePlayer from '../player/SitePlayer'
 import { projects, profile } from '../data/portfolio'
 import { viewHref } from '../navigation'
+import { CurvedLoop, DotField, PortalDock } from '../components/PortalEffects'
+import './portal-home.css'
 
 const media = file => `${import.meta.env.BASE_URL}media/${file}`
 const glow = { colors: ['#d59662', '#703f51', '#356d72'], glowColor: '28 56 66', glowIntensity: .7, borderRadius: 24, backgroundColor: '#111318', fillOpacity: .12 }
 
 export default function HomePage() {
   const project = projects[0]
-  return <div className="spatial-site home-page">
+  const light = event => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    event.currentTarget.style.setProperty('--pointer-x', `${event.clientX - rect.left}px`)
+    event.currentTarget.style.setProperty('--pointer-y', `${event.clientY - rect.top}px`)
+  }
+  return <div className="spatial-site home-page portal-home">
     <AppNavigation current="home" />
     <main id="main-content">
-      <section className="home-hero">
+      <section className="home-hero" onPointerMove={light}>
         <AmbientVideo className="home-hero-video" src={media('autumn.mp4')} poster={media('player-cover.jpg')} />
         <div className="hero-atmosphere" aria-hidden="true"><i /><i /><i /></div>
+        <DotField />
         <div className="home-hero-copy">
           <h1>把想法，做成真正<br /><em>能用的东西。</em></h1>
           <div className="hero-intro">
@@ -30,13 +38,19 @@ export default function HomePage() {
             <a href={viewHref('about')}>认识我 <ArrowUpRight size={17} /></a>
           </div>
         </div>
-        <a className="hero-sound-link glass-surface" href={viewHref('player')}><Headphones size={18} /><span>给思绪一点<br />属于自己的声音</span><ArrowUpRight size={16} /></a>
+        <div className="hero-window-grid">
+          <a className="hero-window window-work" href={viewHref('works')}><AmbientVideo src={media('tech-structure.mp4')} poster={media('tech-structure.png')} /><span>01 / WORKSPACE</span><strong>想法的下一站<ArrowUpRight size={19} /></strong></a>
+          <a className="hero-window window-sound" href={viewHref('player')}><AmbientVideo src={media('blue-bloom.mp4')} poster={media('blue-bloom.png')} /><span>02 / LISTENING ROOM</span><strong>把世界调轻一点<Headphones size={19} /></strong></a>
+          <a className="hero-window window-about" href={viewHref('about')}><img src={media('moon-orbit.png')} alt="" /><span>03 / ABOUT LILZHO</span><strong>在探索中，成为自己<ArrowUpRight size={19} /></strong></a>
+        </div>
+        <CurvedLoop />
+        <PortalDock />
         <p className="hero-coordinate">CONTENT × AI × PRODUCT · 2024—NOW</p>
       </section>
 
       <Reveal as="section" className="home-feature">
         <a href={viewHref('project', { id: project.id })} aria-label={`查看${project.title}详情`}>
-          <AmbientVideo src={project.motion} poster={project.poster} />
+          <AmbientVideo src={media('forest-galaxy.mp4')} poster={media('forest-galaxy.png')} />
           <div className="feature-shade" aria-hidden="true" />
           <div className="feature-copy"><span>{project.status}</span><h2>{project.title}</h2><p>{project.summary}</p><strong>查看作品详情 <ArrowUpRight size={18} /></strong></div>
           <div className="feature-meta"><i>01 / SELECTED WORK</i><i>React · DeepSeek API</i></div>
@@ -49,7 +63,7 @@ export default function HomePage() {
           <UserRound size={25} /><h2>我是谁，<br />正在走向哪里。</h2><p>教育、能力、现在与未来方向。</p><span>打开个人档案 <ArrowUpRight size={16} /></span>
         </Reveal>
         <BorderGlow {...glow} className="sound-portal-glow"><Reveal as="a" className="sound-portal portal-card" href={viewHref('player')}>
-          <AmbientVideo src={media('silver-motion.mp4')} poster={media('silver-poster.jpg')} />
+          <AmbientVideo src={media('night-garden.mp4')} poster={media('night-garden.png')} />
           <div className="portal-darken" /><Headphones size={25} /><h2>给思绪一点<br />属于自己的声音。</h2><p>网易云歌单、本地音乐与可更换壁纸。</p><span>进入声音空间 <ArrowUpRight size={16} /></span>
         </Reveal></BorderGlow>
       </section>
