@@ -8,6 +8,7 @@ import NeteasePanel from './NeteasePanel'
 import { validateCoverFile } from './playerCustomization'
 import { visiblePlaylist } from './playerPerformance'
 import { getNeteasePlayerUrl, needsHostedNetease } from './neteaseAccount'
+import { portfolioHomeHref } from '../navigation'
 import './player.css'
 
 const formatTime = value => Number.isFinite(value) ? `${Math.floor(value / 60)}:${Math.floor(value % 60).toString().padStart(2, '0')}` : '0:00'
@@ -48,7 +49,7 @@ export default function PlayerPage() {
     <CursorTrail />
     <AmbientVideo className="player-backdrop" src={`${import.meta.env.BASE_URL}media/night-garden.mp4`} poster={`${import.meta.env.BASE_URL}media/night-garden.png`} />
     <div className="sound-fluid" aria-hidden="true"><i /><i /><i /></div>
-    <header className="player-nav"><a href="./" className="back-link"><ArrowLeft size={18} />返回作品集</a><span>lilzho / listening room</span></header>
+    <header className="player-nav"><a href={portfolioHomeHref()} className="back-link"><ArrowLeft size={18} />返回作品集</a><span>lilzho / listening room</span></header>
     <main className="player-stage">
       <section className="record-visual" aria-label="音乐封面">
         <div className="sound-heading"><span>SOUND SPACE / 01</span><h1>给思绪一点<br />属于自己的声音。</h1></div>
