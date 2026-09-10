@@ -21,7 +21,17 @@ function ProductConsole() {
     setGenerated(false)
     window.setTimeout(() => { setLoading(false); setGenerated(true) }, 650)
   }
-  return <div className="product-console" aria-label="AI 短视频脚本生成器功能预览">
+  const tilt = event => {
+    if (event.pointerType === 'touch') return
+    const rect = event.currentTarget.getBoundingClientRect()
+    event.currentTarget.style.setProperty('--tilt-x', `${((event.clientY - rect.top) / rect.height - .5) * -5}deg`)
+    event.currentTarget.style.setProperty('--tilt-y', `${((event.clientX - rect.left) / rect.width - .5) * 7}deg`)
+  }
+  const resetTilt = event => {
+    event.currentTarget.style.setProperty('--tilt-x', '1deg')
+    event.currentTarget.style.setProperty('--tilt-y', '-3deg')
+  }
+  return <div className="product-console" aria-label="AI 短视频脚本生成器功能预览" onPointerMove={tilt} onPointerLeave={resetTilt}>
     <header><span><Sparkles size={15} /> Content AI</span><i>DeepSeek API</i></header>
     <div className="console-body">
       <div className="console-form">
@@ -51,6 +61,7 @@ export default function HomePage() {
         <AmbientVideo className="product-hero-video" src={media('tech-structure.mp4')} poster={media('tech-structure.png')} />
         <div className="product-hero-shade" aria-hidden="true" />
         <div className="product-grid" aria-hidden="true" />
+        <div className="hero-depth-lines" aria-hidden="true"><i /><i /><i /></div>
         <div className="product-hero-copy">
           <p className="product-kicker">张皓哲 / lilzho</p>
           <h1>我把内容创作中的问题，<br /><em>做成能用的 AI 产品。</em></h1>

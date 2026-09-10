@@ -24,6 +24,15 @@ test('uses a cinematic tech video behind the interactive product UI hero', () =>
   assert.doesNotMatch(css, /url\('\/images\/lilzho-hero-reference\.png'\)/)
 })
 
+test('pairs the hero with warm graphite depth instead of saturated blue SaaS styling', () => {
+  assert.match(home, /onPointerMove=\{tilt\}/)
+  assert.match(home, /hero-depth-lines/)
+  const portalCss = readFileSync(new URL('../src/pages/portal-home.css', import.meta.url), 'utf8')
+  assert.match(portalCss, /--product-accent:#d59a68/)
+  assert.match(portalCss, /rotateX\(var\(--tilt-x\)\) rotateY\(var\(--tilt-y\)\)/)
+  assert.match(portalCss, /grayscale\(\.72\).*sepia\(\.2\)/)
+})
+
 test('keeps a semantic readable headline and personal identity', () => {
   assert.match(home, /<h1>/)
   assert.match(home, /profile\.role/)
