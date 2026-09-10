@@ -1,5 +1,5 @@
 export const pageExperiences = {
-  home: { signature: 'ambient-particle-field', accent: 'copper' },
+  home: { signature: 'product-focused-home', accent: 'electric-blue' },
   works: { signature: 'spatial-rotating-deck', accent: 'wine' },
   project: { signature: 'code-dither-scan', accent: 'teal' },
   about: { signature: 'observational-eye-field', accent: 'teal' },

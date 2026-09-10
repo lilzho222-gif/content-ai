@@ -15,15 +15,16 @@ test('uses an ink, wine and amber palette', () => {
   assert.match(css, /--ink:/)
 })
 
-test('uses a video-only hero with a poster fallback', () => {
-  assert.match(home, /poster=/)
+test('uses a product UI hero without unrelated scenic media', () => {
+  assert.match(home, /ProductConsole/)
+  assert.doesNotMatch(home, /autumn|forest|moon|bloom|garden/i)
   assert.doesNotMatch(css, /url\('\/images\/lilzho-hero-reference\.png'\)/)
 })
 
 test('keeps a semantic readable headline and personal identity', () => {
   assert.match(home, /<h1>/)
   assert.match(home, /profile\.role/)
-  assert.match(home, /profile\.name/)
+  assert.match(home, /张皓哲 \/ lilzho/)
   assert.doesNotMatch(home, /ParticleTitle/)
 })
 
@@ -37,7 +38,7 @@ test('keeps decorative pointer feedback at application scope', () => {
 test('links the hero to an independent music player view', () => {
   assert.match(home, /viewHref\('player'\)/)
   assert.match(app, /PlayerPage/)
-  assert.match(home, /autumn\.mp4/)
+  assert.match(home, /声音实验/)
 })
 
 test('ships a player with labelled controls and an expandable playlist', () => {

@@ -7,9 +7,8 @@ const works = readFileSync(new URL('../src/pages/WorksPage.jsx', import.meta.url
 const player = readFileSync(new URL('../src/player/PlayerPage.jsx', import.meta.url), 'utf8')
 
 test('distributes distinct interactive languages across pages', () => {
-  assert.match(home, /DotField/)
-  assert.match(home, /CurvedLoop/)
-  assert.match(home, /PortalDock/)
+  assert.match(home, /ProductConsole/)
+  assert.doesNotMatch(home, /DotField|CurvedLoop|PortalDock/)
   assert.match(works, /FlyingPosterRail/)
   assert.match(player, /night-garden\.mp4/)
 })
