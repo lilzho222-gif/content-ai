@@ -48,6 +48,8 @@ export default function HomePage() {
     <AppNavigation current="home" />
     <main id="main-content">
       <section className="product-hero">
+        <AmbientVideo className="product-hero-video" src={media('tech-structure.mp4')} poster={media('tech-structure.png')} />
+        <div className="product-hero-shade" aria-hidden="true" />
         <div className="product-grid" aria-hidden="true" />
         <div className="product-hero-copy">
           <p className="product-kicker">张皓哲 / lilzho</p>

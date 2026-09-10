@@ -15,8 +15,11 @@ test('uses an ink, wine and amber palette', () => {
   assert.match(css, /--ink:/)
 })
 
-test('uses a product UI hero without unrelated scenic media', () => {
+test('uses a cinematic tech video behind the interactive product UI hero', () => {
   assert.match(home, /ProductConsole/)
+  assert.match(home, /className="product-hero-video"/)
+  assert.match(home, /tech-structure\.mp4/)
+  assert.match(home, /tech-structure\.png/)
   assert.doesNotMatch(home, /autumn|forest|moon|bloom|garden/i)
   assert.doesNotMatch(css, /url\('\/images\/lilzho-hero-reference\.png'\)/)
 })
