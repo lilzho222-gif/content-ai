@@ -1,3 +1,14 @@
+export const NETEASE_PLAYER_URL = 'https://lilzho-portfolio.onrender.com/?view=player&qr=live'
+
+export function needsHostedNetease(pageUrl = window.location.href) {
+  const hostname = new URL(pageUrl).hostname.toLowerCase()
+  return hostname === 'github.io' || hostname.endsWith('.github.io')
+}
+
+export function getNeteasePlayerUrl(pageUrl = window.location.href) {
+  return needsHostedNetease(pageUrl) ? NETEASE_PLAYER_URL : new URL(pageUrl).toString()
+}
+
 export function getNeteaseApiEndpoint(pageUrl = window.location.href) {
   return new URL('/api/netease', pageUrl).toString()
 }

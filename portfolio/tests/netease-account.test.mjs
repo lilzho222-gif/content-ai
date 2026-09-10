@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   getNeteaseApiEndpoint,
+  getNeteasePlayerUrl,
+  needsHostedNetease,
   mergeNeteaseTracks,
   qrLoginCanConnect,
   qrStatusLabel,
@@ -17,6 +19,13 @@ test('only treats QR confirmation as connected when login credentials arrived', 
 test('uses the same-origin hosted API endpoint', () => {
   assert.equal(getNeteaseApiEndpoint('https://lilzho.onrender.com/player'), 'https://lilzho.onrender.com/api/netease')
   assert.equal(getNeteaseApiEndpoint('http://localhost:5173/'), 'http://localhost:5173/api/netease')
+})
+
+test('moves GitHub Pages visitors to the same-origin hosted NetEase player', () => {
+  assert.equal(needsHostedNetease('https://lilzho222-gif.github.io/content-ai/portfolio-site/?view=player'), true)
+  assert.equal(getNeteasePlayerUrl('https://lilzho222-gif.github.io/content-ai/portfolio-site/?view=player'), 'https://lilzho-portfolio.onrender.com/?view=player&qr=live')
+  assert.equal(needsHostedNetease('https://lilzho-portfolio.onrender.com/?view=player'), false)
+  assert.equal(getNeteasePlayerUrl('https://lilzho-portfolio.onrender.com/?view=player'), 'https://lilzho-portfolio.onrender.com/?view=player')
 })
 
 test('merges playable NetEase songs and URLs into player tracks', () => {

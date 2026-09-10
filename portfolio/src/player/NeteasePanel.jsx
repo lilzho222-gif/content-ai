@@ -7,6 +7,7 @@ import { useMusic } from './MusicProvider'
 export default function NeteasePanel({ onTracksLoaded }) {
   const music = useMusic()
   const timer = useRef(null)
+  const autoQrStarted = useRef(false)
   const [account, setAccount] = useState(null)
   const [playlists, setPlaylists] = useState([])
   const [qr, setQr] = useState(null)
@@ -64,6 +65,13 @@ export default function NeteasePanel({ onTracksLoaded }) {
       timer.current = setTimeout(() => checkQr(result.key), 1200)
     } catch (reason) { setBusy(false); setError(reason.message) }
   }
+
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('qr') === 'live'
+    if (!requested || busy || account || qr || !apiAvailable || autoQrStarted.current) return
+    autoQrStarted.current = true
+    startQr()
+  }, [busy, account, qr, apiAvailable])
 
   const openPlaylist = async playlist => {
     setBusy(true); setError(''); setStatus(`正在读取《${playlist.name}》`)

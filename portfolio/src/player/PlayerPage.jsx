@@ -7,18 +7,25 @@ import { useMusic } from './MusicProvider'
 import NeteasePanel from './NeteasePanel'
 import { validateCoverFile } from './playerCustomization'
 import { visiblePlaylist } from './playerPerformance'
+import { getNeteasePlayerUrl, needsHostedNetease } from './neteaseAccount'
 import './player.css'
 
 const formatTime = value => Number.isFinite(value) ? `${Math.floor(value / 60)}:${Math.floor(value % 60).toString().padStart(2, '0')}` : '0:00'
 
 export default function PlayerPage() {
   const music = useMusic()
-  const [source, setSource] = useState('local')
+  const [source, setSource] = useState(() => new URLSearchParams(window.location.search).get('qr') === 'live' ? 'netease' : 'local')
   const wallpaperUrl = useRef('')
   const [wallpaper, setWallpaper] = useState('')
   const [wallpaperError, setWallpaperError] = useState('')
   const [visibleTracks, setVisibleTracks] = useState(48)
-  const changeSource = next => { if (next === 'netease') music.pause(); setSource(next) }
+  const changeSource = next => {
+    if (next === 'netease') {
+      music.pause()
+      if (needsHostedNetease()) { window.location.assign(getNeteasePlayerUrl()); return }
+    }
+    setSource(next)
+  }
   const defaultCover = music.track.artwork || `${import.meta.env.BASE_URL}media/night-garden.png`
   const updateWallpaper = file => {
     const validation = validateCoverFile(file)
