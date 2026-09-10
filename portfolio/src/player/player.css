@@ -64,3 +64,4 @@
 @media(max-width:800px){.netease-connect{grid-template-columns:46px 1fr}.netease-connect>button{grid-column:1/-1;width:100%}.netease-playlists{grid-template-columns:1fr}.netease-qr{grid-template-columns:1fr;justify-items:center;text-align:center}.netease-qr>img{width:172px;height:172px}}
 @media(prefers-reduced-motion:reduce) { .record-frame.is-playing::after,.record-frame.is-playing .record-disc,.spin { animation:none; } }
 @media(prefers-reduced-motion:reduce){.sound-fluid i{animation:none}}
+.curved-input-shell{position:relative;padding:7px;border:1px solid rgba(118,174,173,.2);border-radius:26px 9px 26px 9px;background:linear-gradient(110deg,rgba(70,116,117,.12),rgba(121,66,75,.12));box-shadow:inset 0 1px rgba(255,255,255,.06)}.curved-input-shell input{border-radius:20px 7px 7px 7px}.curved-input-shell button{border-radius:7px 7px 20px 7px}

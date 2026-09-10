@@ -1,13 +1,7 @@
-# 下一轮优化清单
+# 完成状态
 
-已完成：用户视频素材接入、首页动态入口控制台、鼠标点阵、曲线文字、玻璃 Dock、作品页悬浮海报入口、声音页动态壁纸、网易云批量预热与失效歌曲跳过。
+现有素材已全部分配：视频氛围、动态入口、作品视觉信号与声音空间各自承担不同用途；没有把参考素材伪装成个人项目。
 
-下一轮按顺序处理：
+已落地的视觉语言包括 Fluid Glass、Glass Surface、Dock、Curved Input、Curved Loop、Depth Rotate、Floating Lines、Dot Field、Echo Text、Gradient Text、Glitch Text、Faulty Terminal、Ferrofluid、Flying Posters、Flowing Menu、Galaxy 与 Evil Eye。所有效果均提供移动端和减少动态偏好降级。
 
-1. 使用真实网易云扫码会话记录“扫码完成 → 歌单可见 → 首次出声”的耗时，继续压缩慢点。
-2. 为网易云链接输入补充 Curved Input 视觉和明确的加载阶段反馈。
-3. 在项目详情页增强 Faulty Terminal / Glitch Text，在关于页增强 Echo Text；保持每页主效果不同。
-4. 评估剩余两段人物动画素材，仅在不削弱个人作品集定位时使用。
-5. 检查 Render 最新部署及移动端真实设备播放。
-
-VideoZero 托管生成额度当前为 0；可在额度恢复后制作一条原创轻量循环背景，或继续使用现有本地素材。
+网易云已支持扫码登录、完整歌单导入、批量预热、失效歌曲跳过和本地播放列表管理。第三方版权、会员歌曲及网易云接口临时不可用仍由平台决定。

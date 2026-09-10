@@ -7,7 +7,7 @@ import PageFooter from '../components/PageFooter'
 import SitePlayer from '../player/SitePlayer'
 import { projects } from '../data/portfolio'
 import { viewHref } from '../navigation'
-import { FlyingPosterRail } from '../components/PortalEffects'
+import { EchoText, FlyingPosterRail, VisualSignalRail } from '../components/PortalEffects'
 import './portal-home.css'
 
 function ProjectDeck({ project }) {
@@ -28,13 +28,14 @@ export default function WorksPage() {
   return <div className="spatial-site works-page">
     <AppNavigation current="works" />
     <main id="main-content">
-      <header className="works-heading"><h1>探索更多作品</h1><p>这里不是作品堆积页，而是一间持续生长的创作空间。每个项目都能独立展开，也能继续新增。</p></header>
+      <header className="works-heading"><h1><EchoText>探索更多作品</EchoText></h1><p>这里不是作品堆积页，而是一间持续生长的创作空间。每个项目都能独立展开，也能继续新增。</p></header>
       <section className="works-stage">
         <aside><Layers3 size={20} /><span>WORK LIBRARY</span><strong>{String(projects.length).padStart(2, '0')}</strong><p>真实作品数量</p></aside>
         <div className="works-decks">{projects.map(project => <ProjectDeck project={project} key={project.id} />)}</div>
         <div className="future-slot"><span>NEXT SLOT</span><p>下一件真实作品完成后，会从这里进入作品空间。</p></div>
       </section>
       <FlyingPosterRail />
+      <VisualSignalRail />
       <section className="works-menu"><FlowingMenu items={projects.map(project => ({ link: viewHref('project', { id: project.id }), text: project.shortTitle, image: project.poster }))} speed={14} textColor="#ece3da" bgColor="#0d1115" marqueeBgColor="#ca9164" marqueeTextColor="#161116" borderColor="#373238" /></section>
     </main>
     <PageFooter /><SitePlayer />

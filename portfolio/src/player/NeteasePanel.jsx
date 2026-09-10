@@ -112,7 +112,7 @@ export default function NeteasePanel({ onTracksLoaded }) {
     </div>
 
     <div className="netease-divider"><span>或者使用公开链接</span></div>
-    <form onSubmit={submit}><label htmlFor="netease-link">网易云歌曲 / 歌单链接</label><div className="netease-input-row"><input id="netease-link" value={input} onChange={event => setInput(event.target.value)} placeholder="https://music.163.com/#/playlist?id=…" type="url" required aria-describedby="netease-help" /><button type="submit" disabled={busy}><Link2 size={17} />导入本站播放器</button></div><small id="netease-help">私密歌单需先扫码连接创建该歌单的账号；会员与版权限制由网易云决定。</small></form>
+    <form onSubmit={submit}><label htmlFor="netease-link">网易云歌曲 / 歌单链接</label><div className="netease-input-row curved-input-shell"><input id="netease-link" value={input} onChange={event => setInput(event.target.value)} placeholder="https://music.163.com/#/playlist?id=…" type="url" required aria-describedby="netease-help" /><button type="submit" disabled={busy}><Link2 size={17} />导入本站播放器</button></div><small id="netease-help">私密歌单需先扫码连接创建该歌单的账号；会员与版权限制由网易云决定。</small></form>
     {error && <p className="media-error" role="alert">{error}</p>}
   </section>
 }

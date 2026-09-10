@@ -5,6 +5,7 @@ import PageFooter from '../components/PageFooter'
 import SitePlayer from '../player/SitePlayer'
 import { projects } from '../data/portfolio'
 import { viewHref } from '../navigation'
+import { FloatingLines } from '../components/PortalEffects'
 
 export default function ProjectPage({ projectId }) {
   const project = projects.find(item => item.id === projectId) || projects[0]
@@ -12,6 +13,7 @@ export default function ProjectPage({ projectId }) {
     <AppNavigation current="works" back={{ href: viewHref('works'), label: '返回作品空间' }} />
     <main id="main-content">
       <header className="project-hero">
+        <FloatingLines />
         <AmbientVideo src={project.motion} poster={project.poster} />
         <div className="project-hero-shade" />
         <div><p>{project.status}</p><h1>{project.title}</h1><span>{project.summary}</span></div>
@@ -28,7 +30,7 @@ export default function ProjectPage({ projectId }) {
         <div className="terminal-grid" aria-hidden="true" />
         <div className="terminal-window">
           <header><i /><i /><i /><span>content-ai / script-generator</span></header>
-          <div className="terminal-body"><p><b>INPUT</b> 为小红书生成一条短视频脚本</p><div><small>01 / 开头钩子</small><strong>别再从“大家好”开始你的视频了。</strong></div><div><small>02 / 内容结构</small><strong>痛点 → 转折 → 可执行的方法</strong></div><p className="terminal-status">DEEPSEEK API · READY</p></div>
+          <div className="terminal-body"><p><b>INPUT</b> 为小红书生成一条短视频脚本</p><div><small>01 / 开头钩子</small><strong>别再从“大家好”开始你的视频了。</strong></div><div><small>02 / 内容结构</small><strong>痛点 → 转折 → 可执行的方法</strong></div><p className="terminal-status glitch-text" data-text="DEEPSEEK API · READY">DEEPSEEK API · READY</p></div>
         </div>
         <div className="terminal-copy"><h2>从需求到可使用产品。</h2><p>我负责产品策划、用户需求分析和前端开发，并基于 DeepSeek API 实现脚本生成能力。</p><div>{project.tags.map(tag => <span key={tag}>{tag}</span>)}</div><a href={project.github} target="_blank" rel="noreferrer">在 GitHub 查看项目 <ArrowUpRight size={17} /></a></div>
       </section>
